@@ -55,6 +55,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Util.fs" />
     <Compile Include="Acceptor.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Program.fs" />

@@ -4,10 +4,10 @@ open Parser
 [<EntryPoint>]
 let main argv = 
     // State machine for the pattern "a*c*e":
-    let start = State (Id "start")
-    let one = State (Id "one")
-    let two = State (Id "two")
-    let three = State (Id "three")
+    let start = State (UniqueId "start")
+    let one = State (UniqueId "one")
+    let two = State (UniqueId "two")
+    let three = State (UniqueId "three")
     let stop = Success
 
     let a = {Start = start; End = one; Accepts = Word "a"}
@@ -43,5 +43,20 @@ let main argv =
     testParser "?" "a"
     testParser "?" "b"
     testParser "?" "ab"
+    testParser "??" "ab"
+    testParser "??" "a"
+    testParser "a??d" "abcd"
+    testParser "a??d" "abcde"
+    testParser "*" ""
+    testParser "*" "a"
+    testParser "*" "abc"
+    testParser "a*" ""
+    testParser "a*" "a"
+    testParser "a*" "abc"
+    testParser "a*" "xyz"
+    testParser "*b" "ab"
+    testParser "*b" "abb"
+    testParser "*b" "abab"
+    testParser "*b" "ababa"
 
     0 // return an integer exit code

@@ -1,7 +1,7 @@
 ﻿module Acceptor
 
-type Id = Id of string
-type State = State of Id | Success | Failure
+type UniqueId = UniqueId of string
+type State = State of UniqueId | Success | Failure
 type Word = Word of string | Anything
 type Transition = {Start: State; End: State; Accepts: Word}
 
