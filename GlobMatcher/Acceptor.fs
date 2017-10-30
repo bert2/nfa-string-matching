@@ -1,7 +1,8 @@
 ﻿module Acceptor
 
+type Id = Id of string
+type State = State of Id | Success | Failure
 type Word = Word of string | Anything
-type State = State | Success | Failure
 type Transition = {Start: State; End: State; Accepts: Word}
 
 let consume currentState transitions word =
@@ -37,7 +38,7 @@ let rec accept startState transitions (text:string) =
         text
         |> getHead
         |> consume startState transitions
-
+    
     match text.Length with
     | 0 -> nextState = Success
     | _ -> 
