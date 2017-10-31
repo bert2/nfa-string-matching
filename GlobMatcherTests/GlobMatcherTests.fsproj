@@ -55,14 +55,12 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SimpleTests.fs" />
+    <Compile Include="GeneratedTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
       <HintPath>..\packages\FsCheck.2.10.3\lib\net452\FsCheck.dll</HintPath>
-    </Reference>
-    <Reference Include="FsCheck.Xunit">
-      <HintPath>..\packages\FsCheck.Xunit.2.10.3\lib\net452\FsCheck.Xunit.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.1.18\lib\net45\FSharp.Core.dll</HintPath>
