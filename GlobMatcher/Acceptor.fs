@@ -10,7 +10,7 @@ let private getHead (str:string) =
     | 0 -> Word ""
     | _ -> Word str.[..0]
 
-let private isOutgoing state {Start = start} = 
+let private isOutgoingFrom state {Start = start} = 
     state = start
 
 let private accepts word transition =
@@ -29,7 +29,7 @@ let private consume currentState transitions word =
     | Failure -> Failure
     | Success -> Failure
     | _ ->
-        let outgoing = transitions |> List.filter (isOutgoing currentState)
+        let outgoing = transitions |> List.filter (isOutgoingFrom currentState)
         match outgoing |> findAccepting word with
         | Some {End = nextState} -> nextState
         | None -> Failure
