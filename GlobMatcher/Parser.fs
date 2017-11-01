@@ -67,7 +67,6 @@ let printGravizoLink states transitions =
         
     let states' = states |> List.map printState |> String.concat ";"
     let transitions' = transitions |> List.map printTransition |> String.concat ";"
-    
     let dotscript = "digraph G {" + states' + ";" + transitions' + "}"
-
+    
     "https://g.gravizo.com/svg?" + (Uri.EscapeDataString dotscript)
