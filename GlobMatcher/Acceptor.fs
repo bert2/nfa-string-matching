@@ -39,3 +39,4 @@ let rec accept startState transitions (text:string) =
     match text.Length with
     | 0 -> nextState = Success
     | _ -> accept nextState transitions text.[1..]
+

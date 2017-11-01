@@ -29,7 +29,7 @@ type MyTests (output:ITestOutputHelper) =
         Check.VerboseThrowOnFailure (Prop.forAll 
             (Arb.fromGen gen) 
             (fun {Pattern = pattern; Text = text} -> 
-                let startState, transitions = toAcceptor pattern
+                let startState::_, transitions = toAcceptor pattern
                 let result = accept startState transitions text
                 output.WriteLine("'{0}' matches glob '{1}': {2}", text, pattern, result)
 
