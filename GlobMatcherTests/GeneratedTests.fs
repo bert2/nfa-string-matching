@@ -31,10 +31,10 @@ type MyTests (output:ITestOutputHelper) =
             (fun {Pattern = pattern; Text = text} -> 
                 let startState::_, transitions = toAcceptor pattern
                 let result = accept startState transitions text
-                output.WriteLine("'{0}' matches glob '{1}': {2}", text, pattern, result)
+                //output.WriteLine("'{0}' matches glob '{1}': {2}", text, pattern, result)
 
                 let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
                 let result' = Regex.IsMatch(text, pattern')
-                output.WriteLine("'{0}' matches regex '{1}': {2}", text, pattern', result')
+                //output.WriteLine("'{0}' matches regex '{1}': {2}", text, pattern', result')
 
                 result' = result))
