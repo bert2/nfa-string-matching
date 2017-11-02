@@ -5,20 +5,10 @@
 open System.Globalization
 open FsCheck
 
-let reverse s =
-    seq {
-        let e = StringInfo.GetTextElementEnumerator(s)
-        while e.MoveNext() do
-            yield e.GetTextElement()
-    }
-    |> Array.ofSeq
-    |> Array.rev
-    |> String.concat ""
-
 type TestData = {Pattern: string; Text: string}
 
 let stringFrom alphabet =
-    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> List.fold (+) "")
+    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> String.concat "")
 
 let singleCharStringFrom alphabet =
     alphabet |> Gen.elements |> Gen.map string
@@ -36,11 +26,7 @@ let matchingTextAndPatternCombo = gen {
         | c -> c |> string |> Gen.constant
 
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
-    let mutable text = ""
-
-    for gen in Seq.map toGen pattern do
-        let! textPart = gen
-        text <- text + textPart
+    let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (String.concat "")
 
     return {Pattern = pattern; Text = text}
 }
