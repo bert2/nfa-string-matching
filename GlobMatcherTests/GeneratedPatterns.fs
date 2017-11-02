@@ -13,21 +13,21 @@ let stringFrom alphabet =
 let singleCharStringFrom alphabet =
     alphabet |> Gen.elements |> Gen.map string
 
+let charToGen c =
+    match c with
+    | '*' -> stringFrom ['a'..'f']
+    | '?' -> singleCharStringFrom ['a'..'f']
+    | c -> singleCharStringFrom [c]
+
 let randomTextAndPatternCombo = gen {
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
     let! text = stringFrom ['a'..'f']
     return {Pattern = pattern; Text = text}
 }
 
-let matchingTextAndPatternCombo = gen {    
-    let toGen = function
-        | '*' -> stringFrom ['a'..'f']
-        | '?' -> singleCharStringFrom ['a'..'f']
-        | c -> singleCharStringFrom [c]
-
+let matchingTextAndPatternCombo = gen {
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
-    let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (String.concat "")
-
+    let! text = pattern |> Seq.map charToGen |> Gen.sequence |> Gen.map (String.concat "")
     return {Pattern = pattern; Text = text}
 }
 
