@@ -8,7 +8,7 @@ open GlobMatcher
 type TestData = {Pattern: string; Text: string}
 
 let stringFrom alphabet =
-    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> List.fold (+) "")
+    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> String.concat "")
 
 let singleCharStringFrom alphabet =
     alphabet |> Gen.elements |> Gen.map string
@@ -26,7 +26,7 @@ let matchingTextAndPatternCombo = gen {
         | c -> c |> string |> Gen.constant
 
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
-    let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (List.fold (+) "")
+    let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (String.concat "")
 
     return {Pattern = pattern; Text = text}
 }
