@@ -1,10 +1,27 @@
-﻿open Acceptor
-open Parser
+﻿open System
+open GlobMatcher
+
+let printGravizoLink states transitions =
+    let printState s =
+        match s with
+        | State (UniqueId id) -> id
+        | s -> sprintf "%A" s
+    let printWord w =
+        match w with
+        | Word s -> if s = "" then "''" else s
+        | w -> sprintf "%A" w
+    let printTransition {Start = s; End = e; Accepts = w} =
+        sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
+        
+    let states' = states |> List.map printState |> String.concat ";"
+    let transitions' = transitions |> List.map printTransition |> String.concat ";"
+    let dotscript = "digraph G {" + states' + ";" + transitions' + "}"
+    "https://g.gravizo.com/svg?" + (Uri.EscapeDataString dotscript) |> printfn "%s"
 
 let isMatch pattern text printGraph =
-    let startState::otherStates,transitions = toAcceptor pattern
-    if printGraph then printfn "%s" (printGravizoLink (startState::otherStates) transitions)
-    accept startState transitions text
+    let startState::otherStates,transitions = Parser.toAcceptor pattern
+    if printGraph then printGravizoLink (startState::otherStates) transitions
+    Acceptor.run startState transitions text
 
 [<EntryPoint>]
 let main argv = 

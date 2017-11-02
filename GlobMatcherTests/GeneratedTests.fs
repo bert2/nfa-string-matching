@@ -1,12 +1,11 @@
 ﻿module GeneratedTests
 
+open System.Text.RegularExpressions
 open Xunit
 open Xunit.Abstractions
 open FsCheck
-open Parser
-open Acceptor
 open FsCheck.Prop
-open System.Text.RegularExpressions
+open GlobMatcher
 
 type TestData = {Pattern: string; Text: string}
 
@@ -29,8 +28,8 @@ type MyTests (output:ITestOutputHelper) =
         Check.VerboseThrowOnFailure (Prop.forAll 
             (Arb.fromGen gen) 
             (fun {Pattern = pattern; Text = text} -> 
-                let startState::_, transitions = toAcceptor pattern
-                let result = accept startState transitions text
+                let startState::_, transitions = Parser.toAcceptor pattern
+                let result = Acceptor.run startState transitions text
                 //output.WriteLine("'{0}' matches glob '{1}': {2}", text, pattern, result)
 
                 let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
