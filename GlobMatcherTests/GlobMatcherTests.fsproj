@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SimpleTests.fs" />
+    <Compile Include="SanitizedPatterns.fs" />
     <Compile Include="GeneratedTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
