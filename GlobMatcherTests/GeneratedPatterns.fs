@@ -1,4 +1,4 @@
-﻿module GeneratedTests
+﻿module GeneratedPatterns
 
 open System.Text.RegularExpressions
 open Xunit

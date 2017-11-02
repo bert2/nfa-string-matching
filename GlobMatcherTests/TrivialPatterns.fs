@@ -1,4 +1,4 @@
-﻿module SimpleTests
+﻿module TrivialPatterns
 
 open Xunit
 open GlobMatcher
