@@ -26,11 +26,7 @@ let matchingTextAndPatternCombo = gen {
         | c -> c |> string |> Gen.constant
 
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
-    let mutable text = ""
-
-    for gen in Seq.map toGen pattern do
-        let! textPart = gen
-        text <- text + textPart
+    let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (List.fold (+) "")
 
     return {Pattern = pattern; Text = text}
 }
