@@ -2,29 +2,48 @@
   <NuGetReference>FsCheck</NuGetReference>
 </Query>
 
+open System.Globalization
 open FsCheck
 
+let reverse s =
+    seq {
+        let e = StringInfo.GetTextElementEnumerator(s)
+        while e.MoveNext() do
+            yield e.GetTextElement()
+    }
+    |> Array.ofSeq
+    |> Array.rev
+    |> String.concat ""
+
+type TestData = {Pattern: string; Text: string}
+
 let stringFrom alphabet =
-    Gen.elements alphabet
-    |> Gen.nonEmptyListOf
-    |> Gen.map(List.map string >> List.fold(+) "")
-    |> Arb.fromGen
-let patterns = stringFrom(['a'..'c']@['?'; '*'])
-let texts = stringFrom(['a'..'f'])
+    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> List.fold (+) "")
 
-type Pattern = Pattern of string with
-    static member op_Explicit(Pattern s) = s
-type Text = Text of string with
-    static member op_Explicit(Text s) = s
-type MyArbitraries =
-    static member Pattern() =
-        stringFrom(['a'..'c']@['?'; '*'])
-        |> Arb.convert Pattern string
-    static member Text() =  
-        stringFrom(['a'..'f'])
-        |> Arb.convert Text string
-Arb.register<MyArbitraries>() |> ignore
+let singleCharStringFrom alphabet =
+    alphabet |> Gen.elements |> Gen.map string
 
-let prop (Pattern p) (Text t) = p.Length = t.Length
+let randomTextAndPatternCombo = gen {
+    let! pattern = stringFrom (['a'..'c']@['?'; '*'])
+    let! text = stringFrom ['a'..'f']
+    return {Pattern = pattern; Text = text}
+}
 
-Check.Quick prop
+let matchingTextAndPatternCombo = gen {    
+    let toGen = function
+        | '*' -> stringFrom ['a'..'f']
+        | '?' -> singleCharStringFrom ['a'..'f']
+        | c -> c |> string |> Gen.constant
+
+    let! pattern = stringFrom (['a'..'c']@['?'; '*'])
+    let mutable text = ""
+
+    for gen in Seq.map toGen pattern do
+        let! textPart = gen
+        text <- text + textPart
+
+    return {Pattern = pattern; Text = text}
+}
+
+randomTextAndPatternCombo |> Gen.sample 5 10 |> Dump |> ignore
+matchingTextAndPatternCombo |> Gen.sample 5 10 |> Dump |> ignore
