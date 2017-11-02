@@ -16,14 +16,14 @@ let singleCharStringFrom alphabet =
 
 let randomTextAndPatternCombo = gen {
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
-    let! text = stringFrom (['a'..'f'])
+    let! text = stringFrom ['a'..'f']
     return {Pattern = pattern; Text = text}
 }
 
 let matchingTextAndPatternCombo = gen {    
     let toGen = function
-        | '*' -> stringFrom (['a'..'f'])
-        | '?' -> singleCharStringFrom (['a'..'f'])
+        | '*' -> stringFrom ['a'..'f']
+        | '?' -> singleCharStringFrom ['a'..'f']
         | c -> c |> string |> Gen.constant
 
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
