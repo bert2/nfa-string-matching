@@ -4,7 +4,6 @@ open System.Text.RegularExpressions
 open Xunit
 open FsCheck
 open GlobMatcher
-open FsCheck.Gen
 
 type TestData = {Pattern: string; Text: string}
 
