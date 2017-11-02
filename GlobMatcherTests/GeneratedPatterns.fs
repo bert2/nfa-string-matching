@@ -23,7 +23,7 @@ let matchingTextAndPatternCombo = gen {
     let toGen = function
         | '*' -> stringFrom ['a'..'f']
         | '?' -> singleCharStringFrom ['a'..'f']
-        | c -> c |> string |> Gen.constant
+        | c -> singleCharStringFrom [c]
 
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
     let! text = pattern |> Seq.map toGen |> Gen.sequence |> Gen.map (String.concat "")
