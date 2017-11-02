@@ -4,19 +4,35 @@ open System.Text.RegularExpressions
 open Xunit
 open FsCheck
 open GlobMatcher
+open FsCheck.Gen
 
 type TestData = {Pattern: string; Text: string}
 
 let stringFrom alphabet =
-    alphabet
-    |> Gen.elements 
-    |> Gen.nonEmptyListOf 
-    |> Gen.map (List.map string >> List.fold (+) "")
-let patterns = stringFrom (['a'..'c']@['?'; '*'])
-let texts = stringFrom (['a'..'f'])
-let gen = gen {
+    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> List.fold (+) "")
+
+let singleCharStringFrom alphabet =
+    alphabet |> Gen.elements |> Gen.map string
+
+let randomTextAndPatternCombo = gen {
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
     let! text = stringFrom (['a'..'f'])
+    return {Pattern = pattern; Text = text}
+}
+
+let matchingTextAndPatternCombo = gen {    
+    let toGen = function
+        | '*' -> stringFrom (['a'..'f'])
+        | '?' -> singleCharStringFrom (['a'..'f'])
+        | c -> c |> string |> Gen.constant
+
+    let! pattern = stringFrom (['a'..'c']@['?'; '*'])
+    let mutable text = ""
+
+    for gen in Seq.map toGen pattern do
+        let! textPart = gen
+        text <- text + textPart
+
     return {Pattern = pattern; Text = text}
 }
 
@@ -29,7 +45,7 @@ let makeLabel globResult regexResult =
 [<Fact>]
 let ``equivalent regular expression yields then same match result`` () = 
     Check.VerboseThrowOnFailure (Prop.forAll 
-        (Arb.fromGen gen) 
+        (Arb.fromGen randomTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let startState::_, transitions = Parser.toAcceptor pattern
             let result = Acceptor.run startState transitions text
