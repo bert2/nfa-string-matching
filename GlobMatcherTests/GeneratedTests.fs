@@ -2,9 +2,7 @@
 
 open System.Text.RegularExpressions
 open Xunit
-open Xunit.Abstractions
 open FsCheck
-open FsCheck.Prop
 open GlobMatcher
 
 type TestData = {Pattern: string; Text: string}
@@ -22,18 +20,21 @@ let gen = gen {
     return {Pattern = pattern; Text = text}
 }
 
-type MyTests (output:ITestOutputHelper) =
-    [<Fact>]
-    member __.``equivalent regular expression yields then same match result`` () = 
-        Check.VerboseThrowOnFailure (Prop.forAll 
-            (Arb.fromGen gen) 
-            (fun {Pattern = pattern; Text = text} -> 
-                let startState::_, transitions = Parser.toAcceptor pattern
-                let result = Acceptor.run startState transitions text
-                //output.WriteLine("'{0}' matches glob '{1}': {2}", text, pattern, result)
+let makeLabel globResult regexResult = 
+    sprintf 
+        "text did%s match glob but did%s match regex" 
+        (if globResult then "" else " NOT") 
+        (if regexResult then "" else " NOT") 
 
-                let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
-                let result' = Regex.IsMatch(text, pattern')
-                //output.WriteLine("'{0}' matches regex '{1}': {2}", text, pattern', result')
+[<Fact>]
+let ``equivalent regular expression yields then same match result`` () = 
+    Check.VerboseThrowOnFailure (Prop.forAll 
+        (Arb.fromGen gen) 
+        (fun {Pattern = pattern; Text = text} -> 
+            let startState::_, transitions = Parser.toAcceptor pattern
+            let result = Acceptor.run startState transitions text
 
-                result' = result))
+            let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
+            let result' = Regex.IsMatch(text, pattern')
+
+            result = result' |@ makeLabel result result'))
