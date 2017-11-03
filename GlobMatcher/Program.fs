@@ -2,9 +2,11 @@
 open GlobMatcher
 
 let printGravizoLink states transitions =
+    let fixDigitHead id =
+        if (Char.IsDigit(id, 0)) then "_" + id else id
     let printState s =
         match s with
-        | State (UniqueId id) -> id
+        | State (UniqueId id) -> fixDigitHead id
         | s -> sprintf "%A" s
     let printWord w =
         match w with
