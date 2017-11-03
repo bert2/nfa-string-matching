@@ -26,7 +26,7 @@ module Parser =
                 let hold = {Start = state; End = firstSuccessor; Accepts = exitWord}
                 backtrack::hold::(extendWithBacktracking target firstSuccessor exitWord successors' transitions)
             else
-                transitions // We reached another "*" -- backtracking can stop here.
+                transitions // We reached another "*" or a "?" -- backtracking can stop here.
 
     let private extentWithVariableLengthWord (fst::snd::states) transitions =
         let acceptLoop = {Start = fst; End = fst; Accepts = Anything}
