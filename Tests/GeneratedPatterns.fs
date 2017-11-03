@@ -31,14 +31,14 @@ let matchingTextAndPatternCombo = gen {
     return {Pattern = pattern; Text = text}
 }
 
-let makeLabel globResult regexResult = 
-    sprintf 
-        "text did%s match glob but did%s match regex" 
-        (if globResult then "" else " NOT") 
-        (if regexResult then "" else " NOT") 
-
 [<Fact>]
 let ``equivalent regular expression yields then same match result`` () = 
+    let print globResult regexResult = 
+        sprintf 
+            "text did%s match glob but did%s match regex" 
+            (if globResult then "" else " NOT") 
+            (if regexResult then "" else " NOT") 
+
     Check.VerboseThrowOnFailure (Prop.forAll 
         (Arb.fromGen randomTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
@@ -48,4 +48,13 @@ let ``equivalent regular expression yields then same match result`` () =
             let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
             let result' = Regex.IsMatch(text, pattern')
 
-            result = result' |@ makeLabel result result'))
+            result = result' |@ print result result'))
+
+[<Fact>]
+let ``matching pattern and text are accepted`` () = 
+    Check.VerboseThrowOnFailure (Prop.forAll 
+        (Arb.fromGen matchingTextAndPatternCombo) 
+        (fun {Pattern = pattern; Text = text} -> 
+            let startState::_, transitions = Parser.toAcceptor pattern
+            let result = Acceptor.run startState transitions text
+            result))
