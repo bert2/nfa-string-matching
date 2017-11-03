@@ -8,8 +8,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a25b1e45-f9ec-412f-a2d3-eb5613faee98</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>GlobMatcherTests</RootNamespace>
-    <AssemblyName>GlobMatcherTests</AssemblyName>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
