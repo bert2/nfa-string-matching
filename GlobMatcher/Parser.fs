@@ -8,30 +8,34 @@ module Parser =
     let private findTransition startState endState =
         List.find (fun {Start = s; End = e} -> s = startState && e = endState)
 
-    let private acceptsAnything state =
-        List.exists (fun {Start = s; Accepts = w} -> s = state && w = Anything)
+    let private accepts word state =
+        List.exists (fun {Start = s; Accepts = w} -> s = state && w = word)
 
     let private extentWithFixedLengthWord idGenerator (oldStart::states) transitions word =
         let newStart = State (idGenerator () |> UniqueId)
         let t = {Start = newStart; End = oldStart; Accepts = word}
         newStart::oldStart::states, t::transitions
 
-    let rec private extendWithBacktracking target firstSuccessor exitWord successors transitions =
-        match successors with
+    let rec private extendWithBacktracking target firstSuccessor exitWord remainingSuccessors allSuccessors transitions =
+        match remainingSuccessors with
         | [] -> transitions
         | [Success] -> transitions
         | state::successors' ->
-            if not (acceptsAnything state transitions) then
+            if not (transitions |> accepts Anything state) then
                 let backtrack = {Start = state; End = target; Accepts = Anything}
-                let hold = {Start = state; End = firstSuccessor; Accepts = exitWord}
-                backtrack::hold::(extendWithBacktracking target firstSuccessor exitWord successors' transitions)
+                if not (transitions |> accepts exitWord state) then
+                    let holdTarget = allSuccessors |> List.find (fun s -> not (transitions |> accepts exitWord s))
+                    let hold = {Start = state; End = holdTarget; Accepts = exitWord}
+                    backtrack::hold::(extendWithBacktracking target firstSuccessor exitWord successors' allSuccessors transitions)
+                else
+                    backtrack::(extendWithBacktracking target firstSuccessor exitWord successors' allSuccessors transitions)
             else
                 transitions // We reached another "*" or a "?" -- backtracking can stop here.
 
     let private extentWithVariableLengthWord (fst::snd::states) transitions =
         let acceptLoop = {Start = fst; End = fst; Accepts = Anything}
         let {Accepts = exitWord} = transitions |> findTransition fst snd
-        let transitions' = extendWithBacktracking fst snd exitWord (snd::states) transitions
+        let transitions' = extendWithBacktracking fst snd exitWord (snd::states) (snd::states) transitions
         fst::snd::states, acceptLoop::transitions'
 
     let private parseWord idGenerator states transitions word =
