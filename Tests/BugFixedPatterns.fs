@@ -13,3 +13,12 @@ let ``two equal characters after a "*" should not break backtracking`` text =
     let start::_,transitions = Parser.toAcceptor "*bb"
     let result = Acceptor.run start transitions text
     Assert.True(result)
+
+[<Theory>]
+[<InlineData("abc")>]
+[<InlineData("abcbc")>]
+[<InlineData("abcabc")>]
+let ``a "?" somewhere after a "*" should not break backtracking`` text =
+    let start::_,transitions = Parser.toAcceptor "*b?"
+    let result = Acceptor.run start transitions text
+    Assert.True(result)
