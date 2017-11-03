@@ -59,7 +59,8 @@ module Parser =
         let initial = State (idGenerator () |> UniqueId)
         let halt = Success
         let eof = {Start = initial; End = halt; Accepts = Word ""}
-        parsePattern idGenerator [initial; halt] [eof] (pattern |> sanitize |> reverse)
+        let pattern' = pattern |> sanitize |> reverse
+        parsePattern idGenerator [initial; halt] [eof] pattern'
 
     let toAcceptor = toAcceptorWithStateId shortId 
 
