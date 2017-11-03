@@ -11,6 +11,9 @@ module Parser =
     let private accepts word state =
         List.exists (fun {Start = s; Accepts = w} -> s = state && w = word)
 
+    let private hasAcceptLoop state =
+        List.exists (fun {Start = s; End = e; Accepts = w} -> s = state && e = state && w = Anything)
+
     let private extentWithFixedLengthWord idGenerator (oldStart::states) transitions word =
         let newStart = State (idGenerator () |> UniqueId)
         let t = {Start = newStart; End = oldStart; Accepts = word}
@@ -21,16 +24,24 @@ module Parser =
         | [] -> transitions
         | [Success] -> transitions
         | state::successors' ->
-            if not (transitions |> accepts Anything state) then
-                let backtrack = {Start = state; End = target; Accepts = Anything}
-                if not (transitions |> accepts exitWord state) then
-                    let holdTarget = allSuccessors |> List.find (fun s -> not (transitions |> accepts exitWord s))
-                    let hold = {Start = state; End = holdTarget; Accepts = exitWord}
-                    backtrack::hold::(extendWithBacktracking target firstSuccessor exitWord successors' allSuccessors transitions)
-                else
-                    backtrack::(extendWithBacktracking target firstSuccessor exitWord successors' allSuccessors transitions)
+            if transitions |> hasAcceptLoop state then
+                transitions // We reached another "*" -- backtracking can stop here.
             else
-                transitions // We reached another "*" or a "?" -- backtracking can stop here.
+                let transitions' = extendWithBacktracking target firstSuccessor exitWord successors' allSuccessors transitions
+                let transitions'' =
+                    if not (transitions |> accepts Anything state) then
+                        let backtrack = {Start = state; End = target; Accepts = Anything}
+                        backtrack::transitions'
+                    else
+                        transitions'
+                let transitions''' =
+                    if not (transitions |> accepts exitWord state) then
+                        let holdTarget = allSuccessors |> List.find (fun s -> not (transitions |> accepts exitWord s))
+                        let hold = {Start = state; End = holdTarget; Accepts = exitWord}
+                        hold::transitions''
+                    else
+                        transitions''
+                transitions'''
 
     let private extentWithVariableLengthWord (fst::snd::states) transitions =
         let acceptLoop = {Start = fst; End = fst; Accepts = Anything}
