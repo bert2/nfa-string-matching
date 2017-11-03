@@ -22,3 +22,11 @@ let ``a "?" somewhere after a "*" should not break backtracking`` text =
     let start::_,transitions = Parser.toAcceptor "*b?"
     let result = Acceptor.run start transitions text
     Assert.True(result)
+
+[<Theory>]
+[<InlineData("abb")>]
+[<InlineData("abbb")>]
+let ``a "?" after a "*" and a character that repeats in then text should not break backtracking`` text =
+    let start::_,transitions = Parser.toAcceptor "*b?"
+    let result = Acceptor.run start transitions text
+    Assert.True(result)
