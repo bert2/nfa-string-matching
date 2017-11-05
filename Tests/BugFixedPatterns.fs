@@ -37,3 +37,10 @@ let ``should handle multiple "?" after a "*"`` text =
     let start::_,transitions = Parser.toAcceptor "*b?a?"
     let result = Acceptor.run start transitions text
     Assert.True(result)
+
+[<Theory>]
+[<InlineData("cbcaca")>]
+let ``should backtrack across multiple "?"`` text =
+    let start::_,transitions = Parser.toAcceptor "*b?a?"
+    let result = Acceptor.run start transitions text
+    Assert.False(result)
