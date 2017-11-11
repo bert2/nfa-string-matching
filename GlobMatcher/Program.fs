@@ -23,7 +23,7 @@ let printGravizoLink states transitions =
 let isMatch pattern text printGraph =
     let startState::otherStates,transitions = Parser.toAcceptor pattern
     if printGraph then printGravizoLink (startState::otherStates) transitions
-    Acceptor.run startState transitions text
+    Automaton.run startState transitions text
 
 [<EntryPoint>]
 let main argv = 

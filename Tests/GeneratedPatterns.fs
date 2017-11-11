@@ -43,7 +43,7 @@ let ``equivalent regular expression yields then same match result`` () =
         (Arb.fromGen randomTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let startState::_, transitions = Parser.toAcceptor pattern
-            let result = Acceptor.run startState transitions text
+            let result = Automaton.run startState transitions text
 
             let pattern' = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$"
             let result' = Regex.IsMatch(text, pattern')
@@ -56,5 +56,5 @@ let ``matching pattern and text are accepted`` () =
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let startState::_, transitions = Parser.toAcceptor pattern
-            let result = Acceptor.run startState transitions text
+            let result = Automaton.run startState transitions text
             result))

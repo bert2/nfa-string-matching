@@ -1,4 +1,4 @@
-﻿namespace GlobMatcher
+﻿namespace Automaton
 
 type UniqueId = UniqueId of string
 type Accept = Accept | Continue
@@ -7,7 +7,7 @@ type Word = Word of char | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
 type Automaton = Automaton of State * Transition list
 
-module Acceptor =
+module Automaton =
     open Util
 
     let private hasFinal = 
