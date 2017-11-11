@@ -54,10 +54,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="TrivialPatterns.fs" />
-    <Compile Include="SanitizedPatterns.fs" />
-    <Compile Include="GeneratedPatterns.fs" />
-    <Compile Include="BugFixedPatterns.fs" />
+    <Compile Include="AutomatonTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
