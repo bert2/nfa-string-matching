@@ -20,7 +20,7 @@ module Automaton =
         |> List.map (fun {End = nextState} -> nextState)
 
     let private consume word transitions =
-        collectUnique (getReachable word transitions)
+        List.collect (getReachable word transitions) >> List.distinct
 
     let rec private addEpsilonReachable transitions added =
         let addEpsilonReachable' state =
@@ -28,7 +28,7 @@ module Automaton =
             match added' with 
             | [] -> [state]
             | _ -> state::addEpsilonReachable transitions (added@added') added'
-        collectUnique addEpsilonReachable'
+        List.collect addEpsilonReachable' >> List.distinct
 
     let run {Initial = initial; Final = final; Transitions = transitions} text =
         let rec run' (text:string) current =
