@@ -16,15 +16,14 @@ module Automaton =
 
     let private expandStates selector = List.map selector >> List.concat >> removeDuplicates
 
-    let private getReachable word state =
-        List.filter (isOutgoingFrom state) 
-        >> List.filter (accepts word) 
-        >> List.map (fun {End = nextState} -> nextState)
+    let private getReachable word transitions state =
+        transitions
+        |> List.filter (isOutgoingFrom state) 
+        |> List.filter (accepts word) 
+        |> List.map (fun {End = nextState} -> nextState)
 
     let private consume word transitions =
-        let consume' current =
-            getReachable word current transitions
-        expandStates consume'
+        expandStates (getReachable word transitions)
 
     let private hasFinal states = 
         let isFinal = function
@@ -34,7 +33,7 @@ module Automaton =
 
     let rec private addEpsilonReachable transitions added =
         let addEpsilonReachable' state =
-            let added' = getReachable Epsilon state transitions |> List.except (state::added)
+            let added' = getReachable Epsilon transitions state |> List.except (state::added)
             match added' with 
             | [] -> [state]
             | _ -> state::addEpsilonReachable transitions (added@added') added'
