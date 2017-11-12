@@ -89,7 +89,7 @@ let ``will enter failure state when no matching transition is found`` () =
 
     Assert.False(result)
 
-// Delete the tests below as soon as we can build/parse automatons.
+// Delete those tests below as soon as we can build/parse automatons.
 
 let empty () =
     let q0 = State (UniqueId "0", Accept)
