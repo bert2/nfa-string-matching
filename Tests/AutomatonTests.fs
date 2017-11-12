@@ -78,8 +78,16 @@ let ``recursive epsilon expansion stops when looping back indirectly`` () =
     Assert.True(result)
 
 [<Fact>]
-let ``cannot recover from failures`` () =
-    Assert.True(false, "test not implemented")
+let ``will enter failure state when no matching transition is found`` () =
+    let q0 = State (UniqueId "0", Continue)
+    let q1 = State (UniqueId "1", Accept)
+    let ``b`` = {Start = q0; End = q1; Accepts = Word 'b'}
+    let ``epsilon`` = {Start = q1; End = q0; Accepts = Epsilon}
+    let M = Automaton (q0, [``b``; ``epsilon``])
+
+    let result = Automaton.run M "aab"
+
+    Assert.False(result)
 
 // Delete the tests below as soon as we can build/parse automatons.
 
