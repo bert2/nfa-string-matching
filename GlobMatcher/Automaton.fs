@@ -25,7 +25,7 @@ module Automaton =
         let consume' current =
             match current with
             | Failure -> [Failure]
-            | _ -> transitions |> getReachable word current
+            | _ -> getReachable word current transitions
         expandStates consume'
 
     let private hasFinal states = 
@@ -34,17 +34,17 @@ module Automaton =
             | _ -> false
         states |> List.exists isFinal
 
-    let rec private addEpsilonReachable transitions =
+    let rec private addEpsilonReachable transitions added =
         let addEpsilonReachable' state =
-            let added = transitions |> getReachable Epsilon state
-            match added with 
+            let added' = getReachable Epsilon state transitions |> List.except (state::added)
+            match added' with 
             | [] -> [state]
-            | _ -> state::addEpsilonReachable transitions added
+            | _ -> state::addEpsilonReachable transitions (added@added') added'
         expandStates addEpsilonReachable'
 
     let run (Automaton (initial, transitions)) text =
         let rec run' (text:string) current =
-            let current' = addEpsilonReachable transitions current
+            let current' = addEpsilonReachable transitions [] current
             if text.Length = 0 then
                 hasFinal current'
             else
