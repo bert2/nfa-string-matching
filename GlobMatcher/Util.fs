@@ -20,8 +20,8 @@ let shortId () =
     Regex.Replace(id, "[/+=]", "")
 
 let removeDuplicates source =
-    let memory = HashSet()
+    let mem = HashSet()
     [for item in source do 
-        if not (memory.Contains item) then
-            memory.Add item |> ignore
+        if not (mem.Contains item) then
+            mem.Add item |> ignore
             yield item]
