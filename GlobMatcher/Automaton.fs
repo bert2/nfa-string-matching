@@ -10,17 +10,11 @@ type Automaton = Automaton of State * Transition list
 module Automaton =
     open Util
 
-    let private hasFinal states = 
-        let isFinal = function
-            | State (_, Accept) -> true
-            | _ -> false
-        states |> List.exists isFinal
+    let private accepts word {Accepts = word'} = word' = word
 
     let private isOutgoingFrom state {Start = start} = state = start
 
-    let private accepts word {Accepts = word'} = word' = word
-
-    let private expandStates f = List.map f >> List.concat >> removeDuplicates
+    let private expandStates selector = List.map selector >> List.concat >> removeDuplicates
 
     let private getReachable word state =
         List.filter (isOutgoingFrom state) 
@@ -33,6 +27,12 @@ module Automaton =
             | Failure -> [Failure]
             | _ -> transitions |> getReachable word current
         expandStates consume'
+
+    let private hasFinal states = 
+        let isFinal = function
+            | State (_, Accept) -> true
+            | _ -> false
+        states |> List.exists isFinal
 
     let rec private addEpsilonReachable transitions =
         let addEpsilonReachable' state =
