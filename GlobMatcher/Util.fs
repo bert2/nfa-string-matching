@@ -25,3 +25,5 @@ let removeDuplicates source =
         if not (mem.Contains item) then
             mem.Add item |> ignore
             yield item]
+
+let collectUnique selector = List.collect selector >> removeDuplicates

@@ -14,8 +14,6 @@ module Automaton =
 
     let private isOutgoingFrom state {Start = start} = state = start
 
-    let private expandStates selector = List.collect selector >> removeDuplicates
-
     let private getReachable word transitions state =
         transitions
         |> List.filter (isOutgoingFrom state) 
@@ -23,7 +21,7 @@ module Automaton =
         |> List.map (fun {End = nextState} -> nextState)
 
     let private consume word transitions =
-        expandStates (getReachable word transitions)
+        collectUnique (getReachable word transitions)
 
     let private hasFinal states = 
         let isFinal = function
@@ -37,7 +35,7 @@ module Automaton =
             match added' with 
             | [] -> [state]
             | _ -> state::addEpsilonReachable transitions (added@added') added'
-        expandStates addEpsilonReachable'
+        collectUnique addEpsilonReachable'
 
     let run (Automaton (initial, transitions)) text =
         let rec run' (text:string) current =
