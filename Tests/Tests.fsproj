@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="AutomatonTests.fs" />
+    <Compile Include="AutomatonBuilderTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

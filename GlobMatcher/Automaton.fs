@@ -4,7 +4,7 @@ type UniqueId = UniqueId of string
 type State = State of UniqueId
 type Word = Word of char | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
-type Automaton = Automaton of State list * State list * Transition list
+type Automaton = {Initial: State list; Final: State list; Transitions: Transition list}
 
 module Automaton =
     open Util
@@ -30,7 +30,7 @@ module Automaton =
             | _ -> state::addEpsilonReachable transitions (added@added') added'
         collectUnique addEpsilonReachable'
 
-    let run (Automaton (initial, final, transitions)) text =
+    let run {Initial = initial; Final = final; Transitions = transitions} text =
         let rec run' (text:string) current =
             let current' = addEpsilonReachable transitions [] current
             if text.Length = 0 then
