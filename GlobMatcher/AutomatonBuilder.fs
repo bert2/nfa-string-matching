@@ -6,9 +6,9 @@ module AutomatonBuilder =
     open GlobMatcher
 
     let concat {Initial = is; Final = fs; Transitions = ts} {Initial = is'; Final = fs'; Transitions = ts'} =
-        let connectOtherInitial s =
-            is' |> List.map (fun i -> {Start = s; End = i; Accepts = Epsilon})
-        let bridges = fs |> List.collect connectOtherInitial
+        let bridges = 
+            List.allPairs fs is'
+            |> List.map (fun (f,i) -> {Start = f; End = i; Accepts = Epsilon})
         {Initial = is; Final = fs'; Transitions = ts@bridges@ts'}
 
     let makeChar c =
