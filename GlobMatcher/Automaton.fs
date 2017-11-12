@@ -2,7 +2,7 @@
 
 type UniqueId = UniqueId of string
 type Accept = Accept | Continue
-type State = State of UniqueId * Accept | Failure
+type State = State of UniqueId * Accept
 type Word = Word of char | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
 type Automaton = Automaton of State * Transition list
@@ -23,9 +23,7 @@ module Automaton =
 
     let private consume word transitions =
         let consume' current =
-            match current with
-            | Failure -> [Failure]
-            | _ -> getReachable word current transitions
+            getReachable word current transitions
         expandStates consume'
 
     let private hasFinal states = 
