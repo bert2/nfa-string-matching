@@ -17,7 +17,7 @@ module Automaton =
         transitions
         |> List.filter (isOutgoingFrom state) 
         |> List.filter (accepts word) 
-        |> List.map (fun {End = nextState} -> nextState)
+        |> List.map (fun {End = state'} -> state')
 
     let private consume word transitions =
         List.collect (getReachable word transitions) >> List.distinct
