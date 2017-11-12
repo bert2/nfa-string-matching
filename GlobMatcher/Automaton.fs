@@ -14,7 +14,7 @@ module Automaton =
 
     let private isOutgoingFrom state {Start = start} = state = start
 
-    let private expandStates selector = List.map selector >> List.concat >> removeDuplicates
+    let private expandStates selector = List.collect selector >> removeDuplicates
 
     let private getReachable word transitions state =
         transitions
