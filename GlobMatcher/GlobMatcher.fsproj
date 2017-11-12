@@ -57,6 +57,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Util.fs" />
     <Compile Include="Automaton.fs" />
+    <Compile Include="AutomatonBuilder.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
   </ItemGroup>

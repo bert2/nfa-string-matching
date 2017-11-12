@@ -5,7 +5,7 @@ type Accept = Accept | Continue
 type State = State of UniqueId * Accept
 type Word = Word of char | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
-type Automaton = Automaton of State * Transition list
+type Automaton = Automaton of State list * Transition list
 
 module Automaton =
     open Util
@@ -45,4 +45,4 @@ module Automaton =
             else
                 let next = consume (Word text.[0]) transitions current'
                 run' text.[1..] next
-        run' text [initial]
+        run' text initial
