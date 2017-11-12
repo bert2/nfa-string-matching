@@ -19,11 +19,14 @@ let shortId () =
     let id = Guid.NewGuid().ToByteArray() |> Convert.ToBase64String
     Regex.Replace(id, "[/+=]", "")
 
-let removeDuplicates source =
+let removeDuplicates xs =
     let mem = HashSet()
-    [for item in source do 
-        if not (mem.Contains item) then
-            mem.Add item |> ignore
-            yield item]
+    [for x in xs do 
+        if not (mem.Contains x) then
+            mem.Add x |> ignore
+            yield x]
 
 let collectUnique selector = List.collect selector >> removeDuplicates
+
+let intersects xs ys =
+    xs |> List.exists (fun x -> ys |> List.contains x)

@@ -1,11 +1,10 @@
 ﻿namespace GlobMatcher
 
 type UniqueId = UniqueId of string
-type Accept = Accept | Continue
-type State = State of UniqueId * Accept
+type State = State of UniqueId
 type Word = Word of char | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
-type Automaton = Automaton of State list * Transition list
+type Automaton = Automaton of State list * State list * Transition list
 
 module Automaton =
     open Util
@@ -23,12 +22,6 @@ module Automaton =
     let private consume word transitions =
         collectUnique (getReachable word transitions)
 
-    let private hasFinal states = 
-        let isFinal = function
-            | State (_, Accept) -> true
-            | _ -> false
-        states |> List.exists isFinal
-
     let rec private addEpsilonReachable transitions added =
         let addEpsilonReachable' state =
             let added' = getReachable Epsilon transitions state |> List.except (state::added)
@@ -37,11 +30,11 @@ module Automaton =
             | _ -> state::addEpsilonReachable transitions (added@added') added'
         collectUnique addEpsilonReachable'
 
-    let run (Automaton (initial, transitions)) text =
+    let run (Automaton (initial, final, transitions)) text =
         let rec run' (text:string) current =
             let current' = addEpsilonReachable transitions [] current
             if text.Length = 0 then
-                hasFinal current'
+                current' |> intersects final
             else
                 let next = consume (Word text.[0]) transitions current'
                 run' text.[1..] next

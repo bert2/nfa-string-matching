@@ -5,23 +5,23 @@ open GlobMatcher
 
 [<Fact>]
 let ``handles two transitions accepting then same word`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Continue)
-    let q2 = State (UniqueId "2", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
+    let q2 = State (UniqueId "2")
     let ``one a`` = {Start = q0; End = q2; Accepts = Word 'a'}
     let ``two a (1)`` = {Start = q0; End = q1; Accepts = Word 'a'}
     let ``two a (2)`` = {Start = q1; End = q2; Accepts = Word 'a'}
-    let M = Automaton ([q0], [``one a``; ``two a (1)``; ``two a (2)``])
+    let M = Automaton ([q0], [q2], [``one a``; ``two a (1)``; ``two a (2)``])
 
     Assert.True(Automaton.run M "a", "rejected 'a'")
     Assert.True(Automaton.run M "aa", "rejected 'aa'")
 
 [<Fact>]
 let ``expands intial states across epsilon transitions`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
     let t01 = {Start = q0; End = q1; Accepts = Epsilon}
-    let M = Automaton ([q0], [t01])
+    let M = Automaton ([q0], [q1], [t01])
 
     let result = Automaton.run M ""
 
@@ -29,14 +29,14 @@ let ``expands intial states across epsilon transitions`` () =
 
 [<Fact>]
 let ``expands intermediate states across epsilon transitions`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Continue)
-    let q2 = State (UniqueId "2", Continue)
-    let q3 = State (UniqueId "3", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
+    let q2 = State (UniqueId "2")
+    let q3 = State (UniqueId "3")
     let t01 = {Start = q0; End = q1; Accepts = Word 'a'}
     let t12 = {Start = q1; End = q2; Accepts = Epsilon}
     let t23 = {Start = q2; End = q3; Accepts = Word 'a'}
-    let M = Automaton ([q0], [t01; t12; t23])
+    let M = Automaton ([q0], [q3], [t01; t12; t23])
 
     let result = Automaton.run M "aa"
 
@@ -44,12 +44,12 @@ let ``expands intermediate states across epsilon transitions`` () =
 
 [<Fact>]
 let ``expands states across epsilon transitions recursively`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Continue)
-    let q2 = State (UniqueId "2", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
+    let q2 = State (UniqueId "2")
     let t01 = {Start = q0; End = q1; Accepts = Epsilon}
     let t12 = {Start = q1; End = q2; Accepts = Epsilon}
-    let M = Automaton ([q0], [t01; t12])
+    let M = Automaton ([q0], [q2], [t01; t12])
 
     let result = Automaton.run M ""
 
@@ -57,9 +57,9 @@ let ``expands states across epsilon transitions recursively`` () =
 
 [<Fact>]
 let ``recursive epsilon expansion stops when looping back directly`` () =
-    let q0 = State (UniqueId "0", Accept)
+    let q0 = State (UniqueId "0")
     let t00 = {Start = q0; End = q0; Accepts = Epsilon}
-    let M = Automaton ([q0], [t00])
+    let M = Automaton ([q0], [q0], [t00])
 
     let result = Automaton.run M ""
 
@@ -67,11 +67,11 @@ let ``recursive epsilon expansion stops when looping back directly`` () =
 
 [<Fact>]
 let ``recursive epsilon expansion stops when looping back indirectly`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
     let t01 = {Start = q0; End = q1; Accepts = Epsilon}
     let t10 = {Start = q1; End = q0; Accepts = Epsilon}
-    let M = Automaton ([q0], [t01; t10])
+    let M = Automaton ([q0], [q1], [t01; t10])
 
     let result = Automaton.run M ""
 
@@ -79,11 +79,11 @@ let ``recursive epsilon expansion stops when looping back indirectly`` () =
 
 [<Fact>]
 let ``will enter failure state when no matching transition is found`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
     let ``b`` = {Start = q0; End = q1; Accepts = Word 'b'}
     let ``epsilon`` = {Start = q1; End = q0; Accepts = Epsilon}
-    let M = Automaton ([q0], [``b``; ``epsilon``])
+    let M = Automaton ([q0], [q1], [``b``; ``epsilon``])
 
     let result = Automaton.run M "aab"
 
@@ -91,12 +91,12 @@ let ``will enter failure state when no matching transition is found`` () =
 
 [<Fact>]
 let ``supports multiple initial states`` () =
-    let q0 = State (UniqueId "0", Continue)
-    let q0' = State (UniqueId "0'", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q0' = State (UniqueId "0'")
+    let q1 = State (UniqueId "1")
     let a = {Start = q0; End = q1; Accepts = Word 'a'}
     let epsilon = {Start = q0'; End = q1; Accepts = Epsilon}
-    let M = Automaton ([q0; q0'], [a; epsilon])
+    let M = Automaton ([q0; q0'], [q1], [a; epsilon])
 
     Assert.True(Automaton.run M "a", "rejected a")
     Assert.True(Automaton.run M "", "rejected epsilon")
@@ -104,22 +104,22 @@ let ``supports multiple initial states`` () =
 // Delete those tests below as soon as we can build/parse automatons.
 
 let empty () =
-    let q0 = State (UniqueId "0", Accept)
-    Automaton ([q0], [])
+    let q0 = State (UniqueId "0")
+    Automaton ([q0], [q0], [])
 
 let singleChar c  =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
     let t = {Start = q0; End = q1; Accepts = Word c}
-    Automaton ([q0], [t])
+    Automaton ([q0], [q1], [t])
 
 let repeatChar c =
-    let q0 = State (UniqueId "0", Continue)
-    let q1 = State (UniqueId "1", Accept)
+    let q0 = State (UniqueId "0")
+    let q1 = State (UniqueId "1")
     let t = {Start = q0; End = q0; Accepts = Word c}
     let t' = {Start = q0; End = q1; Accepts = Word c}
     let t'' = {Start = q0; End = q1; Accepts = Epsilon}
-    Automaton ([q0], [t; t'; t''])
+    Automaton ([q0], [q1], [t; t'; t''])
 
 [<Fact>]
 let ``empty automaton accepts empty string`` () =
