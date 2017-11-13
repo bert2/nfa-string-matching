@@ -59,6 +59,7 @@
     <Compile Include="Automaton.fs" />
     <Compile Include="AutomatonBuilder.fs" />
     <Compile Include="GlobParser.fs" />
+    <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
   </ItemGroup>

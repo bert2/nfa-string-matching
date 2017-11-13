@@ -1,29 +1,25 @@
 ﻿open System
 open GlobMatcher
 
-let printGravizoLink states transitions =
-    let fixDigitHead id =
-        if (Char.IsDigit(id, 0)) then "_" + id else id
-    let printState s =
-        match s with
-        | State (UniqueId id) -> fixDigitHead id
-        | s -> sprintf "%A" s
+let printGravizoLink {Transitions = transitions} =
+    let fixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
+    let printState (State (UniqueId id)) = fixDigitHead id
     let printWord w =
         match w with
-        | Word s -> if s = "" then "''" else s
-        | w -> sprintf "%A" w
+        | Word c -> string c
+        | Any -> "*"
+        | Epsilon -> ""
     let printTransition {Start = s; End = e; Accepts = w} =
         sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
         
-    let states' = states |> List.map printState |> String.concat ";"
     let transitions' = transitions |> List.map printTransition |> String.concat ";"
-    let dotscript = "digraph G {" + states' + ";" + transitions' + "}"
+    let dotscript = "digraph G {" + transitions' + "}"
     "https://g.gravizo.com/svg?" + (Uri.EscapeDataString dotscript) |> printfn "%s"
 
 let isMatch pattern text printGraph =
-    let startState::otherStates,transitions = Parser.toAcceptor pattern
-    if printGraph then printGravizoLink (startState::otherStates) transitions
-    Automaton.run startState transitions text
+    let M = GlobParser.toAutomaton pattern
+    if printGraph then printGravizoLink M
+    Automaton.run M text
 
 [<EntryPoint>]
 let main argv = 
