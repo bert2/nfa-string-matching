@@ -5,48 +5,48 @@ open GlobMatcher
 
 [<Fact>]
 let ``pattern "a" accepts "a" character`` () =
-    let start::_,transitions = Parser.toAcceptor "a"
-    let result = Automaton.run start transitions "a"
+    let M = GlobParser.toAutomaton "a"
+    let result = Automaton.run M "a"
     Assert.True(result)
 
 [<Fact>]
 let ``pattern "a" rejects "b" character`` () =
-    let start::_,transitions = Parser.toAcceptor "a"
-    let result = Automaton.run start transitions "b"
+    let M = GlobParser.toAutomaton "a"
+    let result = Automaton.run M "b"
     Assert.False(result)
 
 [<Fact>]
 let ``pattern "a" rejects no character`` () =
-    let start::_,transitions = Parser.toAcceptor "a"
-    let result = Automaton.run start transitions ""
+    let M = GlobParser.toAutomaton "a"
+    let result = Automaton.run M ""
     Assert.False(result)
 
 [<Fact>]
 let ``pattern "?" accepts any character`` () =
-    let start::_,transitions = Parser.toAcceptor "?"
-    let result = Automaton.run start transitions "a"
+    let M = GlobParser.toAutomaton "?"
+    let result = Automaton.run M "a"
     Assert.True(result)
 
 [<Fact>]
 let ``pattern "?" rejects no character`` () =
-    let start::_,transitions = Parser.toAcceptor "?"
-    let result = Automaton.run start transitions ""
+    let M = GlobParser.toAutomaton "?"
+    let result = Automaton.run M ""
     Assert.False(result)
 
 [<Fact>]
 let ``pattern "*" accepts any character`` () =
-    let start::_,transitions = Parser.toAcceptor "*"
-    let result = Automaton.run start transitions "a"
+    let M = GlobParser.toAutomaton "*"
+    let result = Automaton.run M "a"
     Assert.True(result)
 
 [<Fact>]
 let ``pattern "*" accepts any string of characters`` () =
-    let start::_,transitions = Parser.toAcceptor "*"
-    let result = Automaton.run start transitions "abc"
+    let M = GlobParser.toAutomaton "*"
+    let result = Automaton.run M "abc"
     Assert.True(result)
 
 [<Fact>]
 let ``pattern "*" accepts no character`` () =
-    let start::_,transitions = Parser.toAcceptor "*"
-    let result = Automaton.run start transitions ""
+    let M = GlobParser.toAutomaton "*"
+    let result = Automaton.run M ""
     Assert.True(result)
