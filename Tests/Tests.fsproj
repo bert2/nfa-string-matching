@@ -58,7 +58,6 @@
     <Compile Include="NontrivialPatterns.fs" />
     <Compile Include="GeneratedPatterns.fs" />
     <Compile Include="AutomatonTests.fs" />
-    <Compile Include="AutomatonBuilderTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
