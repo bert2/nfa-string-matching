@@ -30,6 +30,17 @@ let ``matches then any string wildcard "*"`` pattern text =
     Assert.True(result)
 
 [<Theory>]
+[<InlineData(@"[b-d]", "a", false)>]
+[<InlineData(@"[b-d]", "b", true)>]
+[<InlineData(@"[b-d]", "c", true)>]
+[<InlineData(@"[b-d]", "d", true)>]
+[<InlineData(@"[b-d]", "e", false)>]
+let ``matches character ranges`` pattern text isMatch =
+    let M = GlobParser.toAutomaton pattern
+    let result = Automaton.run M text
+    Assert.Equal(isMatch, result)
+
+[<Theory>]
 [<InlineData(@"\?", "?")>]
 [<InlineData(@"\*", "*")>]
 [<InlineData(@"\\", @"\")>]
