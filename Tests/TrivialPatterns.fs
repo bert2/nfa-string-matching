@@ -24,7 +24,7 @@ let ``matches the any character wildcard "?"`` pattern text isMatch =
 [<InlineData("*", "a")>]
 [<InlineData("*", "abc")>]
 [<InlineData("*", "")>]
-let ``matches then any string of characters wildcard "*"`` pattern text =
+let ``matches then any string wildcard "*"`` pattern text =
     let M = GlobParser.toAutomaton pattern
     let result = Automaton.run M text
     Assert.True(result)
