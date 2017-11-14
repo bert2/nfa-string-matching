@@ -6,10 +6,11 @@ module GlobParser =
     
     let private parse (pattern:string) =
         match pattern.[0] with
-        | '?'  -> makeAnyChar ()      , pattern.[1..]
-        | '*'  -> makeAnyString ()    , pattern.[1..]
-        | '\\' -> makeChar pattern.[1], pattern.[2..]
-        | c    -> makeChar c          , pattern.[1..]
+        | '?'  -> makeAnyChar ()                   , pattern.[1..]
+        | '*'  -> makeAnyString ()                 , pattern.[1..]
+        | '['  -> makeRange pattern.[1] pattern.[3], pattern.[5..]
+        | '\\' -> makeChar pattern.[1]             , pattern.[2..]
+        | c    -> makeChar c                       , pattern.[1..]
 
     let toAutomaton pattern =
         let rec toAutomaton' (pattern:string) automaton =

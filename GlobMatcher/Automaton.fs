@@ -2,7 +2,7 @@
 
 type UniqueId = UniqueId of string
 type State = State of UniqueId
-type Word = Word of char | Any | Epsilon
+type Word = Word of char | Range of char * char | Any | Epsilon
 type Transition = {Start: State; End: State; Accepts: Word}
 type Automaton = {Initial: State list; Final: State list; Transitions: Transition list}
 
@@ -12,6 +12,7 @@ module Automaton =
     let private accepts word {Accepts = word'} = 
         match word, word' with
         | Word _, Any -> true
+        | Word c, Range (min, max) -> min <= c && c <= max
         | _ -> word' = word
 
     let private isOutgoingFrom state {Start = start} = state = start
