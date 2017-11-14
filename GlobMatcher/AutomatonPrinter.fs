@@ -7,11 +7,13 @@ module AutomatonPrinter =
 
     let private prefixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
 
+    let private escape s = if (s = @"\") then @"\\" else s
+
     let private printState (State (UniqueId id)) = prefixDigitHead id
 
     let private printWord w =
         match w with
-        | Word c -> string c
+        | Word c -> string c |> escape
         | Range (min, max) -> sprintf "%c-%c" min max
         | Any -> "*"
         | Epsilon -> ""
