@@ -4,13 +4,19 @@ module GlobParser =
 
     open AutomatonBuilder
     
-    let private parse c =
-        match c with
-        | '?' -> makeAnyChar ()
-        | '*' -> makeAnyString ()
-        | c -> makeChar c
+    let private parse (pattern:string) =
+        match pattern.[0] with
+        | '?'  -> makeAnyChar ()      , pattern.[1..]
+        | '*'  -> makeAnyString ()    , pattern.[1..]
+        | '\\' -> makeChar pattern.[1], pattern.[2..]
+        | c    -> makeChar c          , pattern.[1..]
 
-    let toAutomaton (pattern:string) =
-        pattern
-        |> Seq.map parse
-        |> Seq.fold concat (makeEmpty ())
+    let toAutomaton pattern =
+        let rec toAutomaton' (pattern:string) automaton =
+            match pattern.Length with
+            | 0 -> automaton
+            | _ -> 
+                let automaton', pattern' = parse pattern
+                concat automaton automaton'
+                |> toAutomaton' pattern'
+        toAutomaton' pattern (makeEmpty ())
