@@ -58,6 +58,7 @@
     <Compile Include="Util.fs" />
     <Compile Include="Automaton.fs" />
     <Compile Include="AutomatonBuilder.fs" />
+    <Compile Include="AutomatonPrinter.fs" />
     <Compile Include="GlobParser.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />

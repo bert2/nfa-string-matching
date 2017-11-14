@@ -1,21 +1,9 @@
 ﻿open System
 open GlobMatcher
 
-let printGravizoLink {Transitions = transitions} =
-    let fixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
-    let printState (State (UniqueId id)) = fixDigitHead id
-    let printWord w =
-        match w with
-        | Word c -> string c
-        | Range (min, max) -> sprintf "%c-%c" min max
-        | Any -> "*"
-        | Epsilon -> ""
-    let printTransition {Start = s; End = e; Accepts = w} =
-        sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
-        
-    let transitions' = transitions |> List.map printTransition |> String.concat ";"
-    let dotscript = "digraph G {" + transitions' + "}"
-    "https://g.gravizo.com/svg?" + (Uri.EscapeDataString dotscript) |> printfn "%s"
+let printGravizoLink automaton =
+    let dotscript = AutomatonPrinter.toDot automaton
+    printfn "%s%s" "https://g.gravizo.com/svg?" (Uri.EscapeDataString dotscript)
 
 let isMatch pattern text printGraph =
     let M = GlobParser.toAutomaton pattern
