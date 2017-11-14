@@ -7,6 +7,7 @@ let printGravizoLink {Transitions = transitions} =
     let printWord w =
         match w with
         | Word c -> string c
+        | Range (min, max) -> sprintf "%c-%c" min max
         | Any -> "*"
         | Epsilon -> ""
     let printTransition {Start = s; End = e; Accepts = w} =
