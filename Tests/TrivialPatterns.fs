@@ -50,3 +50,9 @@ let ``pattern "*" accepts no character`` () =
     let M = GlobParser.toAutomaton "*"
     let result = Automaton.run M ""
     Assert.True(result)
+
+[<Fact>]
+let ``escape character allows matching wildcards literally`` () =
+    let M = GlobParser.toAutomaton @"\*"
+    let result = Automaton.run M "*"
+    Assert.True(result)
