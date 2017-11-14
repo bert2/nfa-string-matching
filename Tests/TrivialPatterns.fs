@@ -3,68 +3,37 @@
 open Xunit
 open GlobMatcher
 
-[<Fact>]
-let ``pattern "a" accepts "a" character`` () =
-    let M = GlobParser.toAutomaton "a"
-    let result = Automaton.run M "a"
+[<Theory>]
+[<InlineData("a", "a", true)>]
+[<InlineData("a", "b", false)>]
+[<InlineData("a", "", false)>]
+let ``matches literal characters`` pattern text isMatch =
+    let M = GlobParser.toAutomaton pattern
+    let result = Automaton.run M text
+    Assert.Equal(isMatch, result)
+
+[<Theory>]
+[<InlineData("?", "a", true)>]
+[<InlineData("?", "", false)>]
+let ``matches the any character wildcard "?"`` pattern text isMatch =
+    let M = GlobParser.toAutomaton pattern
+    let result = Automaton.run M text
+    Assert.Equal(isMatch, result)
+
+[<Theory>]
+[<InlineData("*", "a")>]
+[<InlineData("*", "abc")>]
+[<InlineData("*", "")>]
+let ``matches then any string of characters wildcard "*"`` pattern text =
+    let M = GlobParser.toAutomaton pattern
+    let result = Automaton.run M text
     Assert.True(result)
 
-[<Fact>]
-let ``pattern "a" rejects "b" character`` () =
-    let M = GlobParser.toAutomaton "a"
-    let result = Automaton.run M "b"
-    Assert.False(result)
-
-[<Fact>]
-let ``pattern "a" rejects no character`` () =
-    let M = GlobParser.toAutomaton "a"
-    let result = Automaton.run M ""
-    Assert.False(result)
-
-[<Fact>]
-let ``pattern "?" accepts any character`` () =
-    let M = GlobParser.toAutomaton "?"
-    let result = Automaton.run M "a"
-    Assert.True(result)
-
-[<Fact>]
-let ``pattern "?" rejects no character`` () =
-    let M = GlobParser.toAutomaton "?"
-    let result = Automaton.run M ""
-    Assert.False(result)
-
-[<Fact>]
-let ``pattern "*" accepts any character`` () =
-    let M = GlobParser.toAutomaton "*"
-    let result = Automaton.run M "a"
-    Assert.True(result)
-
-[<Fact>]
-let ``pattern "*" accepts any string of characters`` () =
-    let M = GlobParser.toAutomaton "*"
-    let result = Automaton.run M "abc"
-    Assert.True(result)
-
-[<Fact>]
-let ``pattern "*" accepts no character`` () =
-    let M = GlobParser.toAutomaton "*"
-    let result = Automaton.run M ""
-    Assert.True(result)
-
-[<Fact>]
-let ``escape character allows matching "?" literally`` () =
-    let M = GlobParser.toAutomaton @"\?"
-    let result = Automaton.run M "?"
-    Assert.True(result)
-
-[<Fact>]
-let ``escape character allows matching "*" literally`` () =
-    let M = GlobParser.toAutomaton @"\*"
-    let result = Automaton.run M "*"
-    Assert.True(result)
-
-[<Fact>]
-let ``escape character allows matching "\" literally`` () =
-    let M = GlobParser.toAutomaton @"\\"
-    let result = Automaton.run M @"\"
+[<Theory>]
+[<InlineData(@"\?", "?")>]
+[<InlineData(@"\*", "*")>]
+[<InlineData(@"\\", @"\")>]
+let ``escape character allows matching meta characters literally`` pattern text =
+    let M = GlobParser.toAutomaton pattern
+    let result = Automaton.run M text
     Assert.True(result)
