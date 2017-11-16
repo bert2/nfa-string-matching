@@ -1,4 +1,5 @@
 ﻿open System
+open System.Diagnostics
 open GlobMatcher
 
 let printGravizoLink automaton =
@@ -21,9 +22,7 @@ let isMatch pattern text printGraph =
     Automaton.run a text
 
 let exit code =
-#if DEBUG
-    System.Console.ReadKey(true) |> ignore
-#endif
+    if Debugger.IsAttached then Console.ReadKey(true) |> ignore
     code
 
 let getInputs (args:string[]) =
