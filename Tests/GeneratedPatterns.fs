@@ -29,6 +29,6 @@ let ``matching pattern and text are accepted`` () =
     Check.VerboseThrowOnFailure (Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
-            let M = GlobParser.toAutomaton pattern
+            let M = GlobParser.toAutomaton' pattern
             let result = Automaton.run M text
             result))

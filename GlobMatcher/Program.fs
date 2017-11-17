@@ -16,11 +16,6 @@ let gatherUserInputs () =
     printfn ""
     (pattern, text, print)
 
-let isMatch pattern text printGraph =
-    let a = GlobParser.toAutomaton pattern
-    if printGraph then printGravizoLink a
-    Automaton.run a text
-
 let exit code =
     if Debugger.IsAttached then Console.ReadKey(true) |> ignore
     code
@@ -40,6 +35,12 @@ let getInputs (args:string[]) =
 [<EntryPoint>]
 let main argv = 
     let (pattern, text, printGraph) = getInputs argv
-    let result = isMatch pattern text printGraph
-    printfn "Match: %A" result
-    exit (if result then 0 else 1)
+    match GlobParser.toAutomaton pattern with
+    | Failure msg -> 
+        printfn "%s" msg
+        exit 1
+    | Success a ->
+        if printGraph then printGravizoLink a
+        let result = Automaton.run a text
+        printfn "Match: %A" result
+        exit (if result then 0 else 1)
