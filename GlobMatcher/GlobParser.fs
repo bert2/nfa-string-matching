@@ -20,15 +20,15 @@ module GlobParser =
             Failure "Expected closing bracket ']' at end of character range."
         | _ -> Success pattern
 
-    let private parseRange validatedPattern =
-        match validatedPattern with
-        | Success (pattern:string) -> Success (makeRange pattern.[0] pattern.[2], pattern.[4..])
-        | Failure err -> Failure err
-
     let private checkEscapeSyntax (pattern:string) =
         match pattern.Length with
         | 0 -> Failure "Unexpected end of pattern string after escape character '\\'."
         | _ -> Success pattern
+
+    let private parseRange validatedPattern =
+        match validatedPattern with
+        | Success (pattern:string) -> Success (makeRange pattern.[0] pattern.[2], pattern.[4..])
+        | Failure err -> Failure err
 
     let private parseEscaped validatedPattern =
         match validatedPattern with
