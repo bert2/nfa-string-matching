@@ -1,24 +1,29 @@
 ﻿namespace GlobMatcher
 
-type ParseResult<'a> = Success of 'a | Failure of string
+type Result<'a> = Success of 'a | Failure of string
 
 module GlobParser = 
 
     open AutomatonBuilder
     
-    let private parseRange (pattern:string) =
+    let private checkRangeSyntax (pattern:string) =
         match pattern.Length with
-        | 0 -> Failure "Unexpected end of pattern string after start of character range.", pattern
-        | 1 -> Failure "Unexpected end of pattern string after lower boundary of character range.", pattern.[1..]
+        | 0 -> Failure "Unexpected end of pattern string after start of character range."
+        | 1 -> Failure "Unexpected end of pattern string after lower boundary of character range."
         | 2 -> 
             if pattern.[1] = '-' then
-                Failure "Unexpected end of pattern string after minus sign '-' in character range.", pattern.[2..]
+                Failure "Unexpected end of pattern string after minus sign '-' in character range."
             else
-                Failure "Expected minus sign '-' to separate lower and upper boundary in character range.", pattern.[2..]
-        | 3 -> Failure "Unexpected end of pattern string after upper boundary of character range.", pattern.[3..]
+                Failure "Expected minus sign '-' to separate lower and upper boundary in character range."
+        | 3 -> Failure "Unexpected end of pattern string after upper boundary of character range."
         | 4 when pattern.[3] <> ']' -> 
-            Failure "Expected closing bracket ']' at end of character range.", pattern.[4..]
-        | _ -> Success (makeRange pattern.[0] pattern.[2]),  pattern.[4..]
+            Failure "Expected closing bracket ']' at end of character range."
+        | _ -> Success ()
+
+    let private parseRange (pattern:string) =
+        match checkRangeSyntax pattern with
+        | Success _ -> Success (makeRange pattern.[0] pattern.[2]),  pattern.[4..]
+        | Failure err -> Failure err, pattern
 
     let private parseEscaped (pattern:string) =
         match pattern.Length with
