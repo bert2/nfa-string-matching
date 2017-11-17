@@ -1,6 +1,6 @@
 ﻿namespace GlobMatcher
 
-type Result<'a> = Success of 'a | Failure of string
+type Result<'a, 'b> = Success of 'a | Failure of 'b
 
 module GlobParser = 
 
@@ -8,22 +8,22 @@ module GlobParser =
     
     let private checkRangeSyntax (pattern:string) =
         match pattern.Length with
-        | 0 -> Failure "Unexpected end of pattern string after start of character range."
-        | 1 -> Failure "Unexpected end of pattern string after lower boundary of character range."
+        | 0 -> Failure ("Unexpected end of pattern string after start of character range.", pattern)
+        | 1 -> Failure ("Unexpected end of pattern string after lower boundary of character range.", pattern.[1..])
         | 2 -> 
             if pattern.[1] = '-' then
-                Failure "Unexpected end of pattern string after minus sign '-' in character range."
+                Failure ("Unexpected end of pattern string after minus sign '-' in character range.", pattern.[2..])
             else
-                Failure "Expected minus sign '-' to separate lower and upper boundary in character range."
-        | 3 -> Failure "Unexpected end of pattern string after upper boundary of character range."
+                Failure ("Expected minus sign '-' to separate lower and upper boundary in character range.", pattern.[2..])
+        | 3 -> Failure ("Unexpected end of pattern string after upper boundary of character range.", pattern.[3..])
         | 4 when pattern.[3] <> ']' -> 
-            Failure "Expected closing bracket ']' at end of character range."
-        | _ -> Success ()
+            Failure ("Expected closing bracket ']' at end of character range.", pattern.[4..])
+        | _ -> Success pattern
 
-    let private parseRange (pattern:string) =
-        match checkRangeSyntax pattern with
-        | Success _ -> Success (makeRange pattern.[0] pattern.[2]),  pattern.[4..]
-        | Failure err -> Failure err, pattern
+    let private parseRange validatedPattern =
+        match validatedPattern with
+        | Success (pattern:string) -> Success (makeRange pattern.[0] pattern.[2]), pattern.[4..]
+        | Failure (err, pattern) -> Failure err, pattern
 
     let private parseEscaped (pattern:string) =
         match pattern.Length with
@@ -34,17 +34,16 @@ module GlobParser =
         match pattern.[0] with
         | '?'  -> Success (makeAnyChar ()), pattern.[1..]
         | '*'  -> Success (makeAnyString ()), pattern.[1..]
-        | '['  -> parseRange pattern.[1..]
+        | '['  -> pattern.[1..] |> checkRangeSyntax |> parseRange
         | '\\' -> parseEscaped pattern.[1..]
         | c    -> Success (makeChar c), pattern.[1..]
 
     let toAutomaton pattern =
         let rec toAutomaton' (pattern:string) automaton =
-            match pattern.Length with
-            | 0 -> Success automaton
-            | _ -> 
+            if pattern.Length = 0 then
+                Success automaton
+            else
                 let result, pattern' = parse pattern
-
                 match result with
                 | Success a -> concat automaton a |> toAutomaton' pattern'
                 | Failure err -> Failure ("Syntax error: " + err)
