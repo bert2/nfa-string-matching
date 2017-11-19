@@ -36,3 +36,12 @@ module AutomatonBuilder =
         let connect (f, i') = {Start = f; End = i'; Accepts = Epsilon}
         let bridges = List.allPairs fs is' |> List.map connect
         {Initial = is; Final = fs'; Transitions = ts@bridges@ts'}
+    
+    type NfaBuilder () =
+        member x.YieldFrom m = m
+        member x.For (m, f) = m |> Seq.map f |> Seq.fold concat (makeEmpty ())
+        member x.Combine (m, m') = concat m m'
+        member x.Delay f = f ()
+        member x.Zero () = makeEmpty ()
+
+    let nfa = NfaBuilder ()
