@@ -1,6 +1,7 @@
 ﻿open System
 open System.Diagnostics
 open GlobMatcher
+open Result
 
 let printGravizoLink automaton =
     let dotscript = AutomatonPrinter.toDot automaton

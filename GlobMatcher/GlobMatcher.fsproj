@@ -54,11 +54,12 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Util.fs" />
     <Compile Include="Automaton.fs" />
     <Compile Include="AutomatonBuilder.fs" />
     <Compile Include="AutomatonPrinter.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="Parser.fs" />
     <Compile Include="GlobParser.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
