@@ -18,14 +18,16 @@ module GlobParser =
 
     let private charRange = pchar '[' >>. char .>> pchar '-' .>>. char .>> pchar ']' <?> "character range"
 
-    let private parser =
+    let private token =
         choice [
             anyCharWildcard   |>> makeAnyChar
             anyStringWildcard |>> makeAnyString
             charRange         |>> (fun (min, max) -> makeRange min max)
             escapedChar       |>> makeChar
-            opt char          |>> (Option.map makeChar >> Option.defaultWith makeEmpty)
+            char              |>> makeChar
         ]
+
+    let private parser = many token |>> (List.fold concat (makeEmpty ()))
 
     let parsePattern succeed fail pattern =
         let result = run' parser pattern
