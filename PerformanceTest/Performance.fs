@@ -4,7 +4,6 @@ open System
 open System.Diagnostics
 open MathNet.Numerics
 open GlobMatcher
-open System.Text.RegularExpressions
 
 let toFloats = List.map float >> List.toArray
 
@@ -24,10 +23,6 @@ let measureTimeForPatternLength n =
     let pattern, text = makeTestData "*" "a" n
     let automaton = GlobParser.toAutomaton' pattern
     measure (fun () -> Automaton.run automaton text)
-
-let measureTimeForPatternLength' n = 
-    let pattern, text = makeTestData ".*" "a" n
-    measure (fun () -> Regex.IsMatch (text, pattern))
 
 let repeat n f =
     [0..n]
@@ -53,10 +48,4 @@ let durations =
     |> List.map (delay measureTimeForPatternLength)
     |> List.map (repeat 5)
 
-let durations' = 
-    lengths 
-    |> List.map (delay measureTimeForPatternLength')
-    |> List.map (repeat 5)
-
 let goodness = [1..4] |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
-let goodness' = [1..4] |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations'))
