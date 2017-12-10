@@ -70,12 +70,15 @@ let toCsvRecord commit build fits durations =
     let durations' = String.Join ("; ", durations |> List.map toStr)
     sprintf "%s; %s; %s; %s%s" commit build fits' durations' Environment.NewLine
 
-let hasResultsFor commitHash resultCsv =
-    File.ReadLines resultCsv 
-    |> Seq.exists (fun l -> l.StartsWith commitHash)
+let hasResultsFor commitHash build resultCsv =
+    if File.Exists resultCsv then 
+        let resultId = sprintf "%s; %s" commitHash build
+        File.ReadLines resultCsv 
+        |> Seq.exists (fun l -> l.StartsWith resultId)
+    else
+        false
 
-[<EntryPoint>]
-let main _ = 
+let doPerformanceTest minPatternLen maxPatternLen repetitions =
     let commit = getCommitHash ()
     let build = getBuildConfig ()
     printfn "Performance testing commit %s (%s build)" commit build
@@ -83,12 +86,12 @@ let main _ =
     doWarmup 50
 
     printf "Running automaton with pattern of length 000 (00x)"
-    let lengths = [1..20]
+    let lengths = [minPatternLen..maxPatternLen]
     let durations = lengths |> List.map (delay measureTimeForPatternLength) |> List.map (repeat 5)
     printfn ""
 
     printf "Analyzing runtime behaviour..."
-    let orders = [1..4]
+    let orders = [1..repetitions-1]
     let fits = orders |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
     printfn "done"
 
@@ -96,7 +99,7 @@ let main _ =
     let durations' = List.zip lengths durations
     let resultFile = "perftest-results.csv"
 
-    if resultFile |> hasResultsFor commit then
+    if resultFile |> hasResultsFor commit build then
         printfn "Result data for commit %A already saved. Printing results to screen:" commit
         printfn "\nGoodness of polynomial fits:\n%A" fits'
         printfn "\nMeasurements per pattern length:%A" durations'
@@ -105,6 +108,14 @@ let main _ =
         let csv = toCsvRecord commit build fits' durations'
         File.AppendAllText (resultFile, csv)
         printfn "done"
+
+[<EntryPoint>]
+let main args = 
+    match args.Length with
+    | 3 -> doPerformanceTest (int args.[0]) (int args.[1]) (int args.[2])
+    | _ -> 
+        printfn "Usage:   PerformanceTest.exe <min pattern length> <max pattern length> <number of repetitions>"
+        printfn "Example: PerformanceTest.exe 1 100 5"
 
     if Debugger.IsAttached then Console.ReadKey (true) |> ignore
     0
