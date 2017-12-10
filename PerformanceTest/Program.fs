@@ -2,6 +2,8 @@
 open System.Diagnostics
 open MathNet.Numerics
 open GlobMatcher
+open Proc
+open System.IO
 
 let toFloats = List.map float >> List.toArray
 
@@ -49,22 +51,60 @@ let doWarmup n =
     Automaton.run automaton text |> ignore
     printfn "done"
 
+let getCommitHash () =
+    let exitCode, output = Proc.run "git" "rev-parse --short HEAD"
+    match exitCode with
+    | 0 -> output.Head
+    | _ -> failwith (String.Join (Environment.NewLine, output))
+
+let getBuildConfig () =
+#if DEBUG
+    "debug"
+#else
+    "release"
+#endif
+
+let toCsvRecord commit build fits durations =
+    let toStr (l, r) = sprintf "%A; %A" l r
+    let fits' = String.Join ("; ", fits |> List.map toStr)
+    let durations' = String.Join ("; ", durations |> List.map toStr)
+    sprintf "%s; %s; %s; %s%s" commit build fits' durations' Environment.NewLine
+
+let hasResultsFor commitHash resultCsv =
+    File.ReadLines resultCsv 
+    |> Seq.exists (fun l -> l.StartsWith commitHash)
+
 [<EntryPoint>]
-let main argv = 
+let main _ = 
+    let commit = getCommitHash ()
+    let build = getBuildConfig ()
+    printfn "Performance testing commit %s (%s build)" commit build
+
     doWarmup 50
 
     printf "Running automaton with pattern of length 000 (00x)"
-    let lengths = [1..40]
-    let durations = 
-        lengths 
-        |> List.map (delay measureTimeForPatternLength)
-        |> List.map (repeat 5)
+    let lengths = [1..20]
+    let durations = lengths |> List.map (delay measureTimeForPatternLength) |> List.map (repeat 5)
     printfn ""
 
     printf "Analyzing runtime behaviour..."
-    let goodness = [1..4] |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
+    let orders = [1..4]
+    let fits = orders |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
     printfn "done"
-    printfn "%A" goodness
+
+    let fits' = List.zip orders fits
+    let durations' = List.zip lengths durations
+    let resultFile = "perftest-results.csv"
+
+    if resultFile |> hasResultsFor commit then
+        printfn "Result data for commit %A already saved. Printing results to screen:" commit
+        printfn "\nGoodness of polynomial fits:\n%A" fits'
+        printfn "\nMeasurements per pattern length:%A" durations'
+    else
+        printf "Saving results to %s..." resultFile
+        let csv = toCsvRecord commit build fits' durations'
+        File.AppendAllText (resultFile, csv)
+        printfn "done"
 
     if Debugger.IsAttached then Console.ReadKey (true) |> ignore
     0
