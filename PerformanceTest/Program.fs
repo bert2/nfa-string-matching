@@ -1,9 +1,16 @@
 ﻿open System
 open System.Diagnostics
+open System.IO
+open FSharp.Charting
 open MathNet.Numerics
 open GlobMatcher
 open Proc
-open System.IO
+
+type TestResult = {
+    Commit: string
+    Durations: (int * float) list
+    PolynomialFits: (int * float) list
+}
 
 let toFloats = List.map float >> List.toArray
 
@@ -57,31 +64,59 @@ let getCommitHash () =
     | 0 -> output.Head
     | _ -> failwith (String.Join (Environment.NewLine, output))
 
-let getBuildConfig () =
+let debugBuild =
 #if DEBUG
-    "debug"
+    true
 #else
-    "release"
+    false
 #endif
 
-let toCsvRecord commit build fits durations =
+let toCsvRecord {Commit = commit; PolynomialFits = fits; Durations = durations} =
     let toStr (l, r) = sprintf "%A; %A" l r
     let fits' = String.Join ("; ", fits |> List.map toStr)
     let durations' = String.Join ("; ", durations |> List.map toStr)
-    sprintf "%s; %s; %s; %s%s" commit build fits' durations' Environment.NewLine
+    sprintf "%s; %i; %s; %i; %s%s" commit fits.Length fits' durations.Length durations' Environment.NewLine
 
-let hasResultsFor commitHash build resultCsv =
-    if File.Exists resultCsv then 
-        let resultId = sprintf "%s; %s" commitHash build
-        File.ReadLines resultCsv 
-        |> Seq.exists (fun l -> l.StartsWith resultId)
-    else
-        false
+let fromCsvRecord (str:string) = 
+    let parseTuples offset n (record:string[]) =
+        [for i in 0..n-1 -> 
+            let index = offset + i * 2
+            let left = record.[index] |> int
+            let right = record.[index + 1] |> float
+            left, right]
 
-let doPerformanceTest minPatternLen maxPatternLen repetitions =
+    let record = str.Split ';'
+
+    let fitsOffset = 2
+    let numFits = record.[fitsOffset - 1] |> int
+    let durationsOffset = 1 + 1 + numFits * 2 + 1
+    let numDurations = record.[durationsOffset - 1] |> int
+
+    {
+        Commit = record.[0]
+        PolynomialFits = parseTuples fitsOffset numFits record
+        Durations = parseTuples durationsOffset numDurations record
+    }
+
+let fromCsv filename =
+    File.ReadAllLines filename
+    |> Array.toList
+    |> List.map fromCsvRecord
+
+let contains result results =
+    results
+    |> List.map (fun r -> r.Commit)
+    |> List.contains result.Commit
+
+let ensureCreated filename = 
+    File.AppendAllText (filename, null)
+    filename
+
+let measurePerformance minPatternLen maxPatternLen repetitions =
     let commit = getCommitHash ()
-    let build = getBuildConfig ()
-    printfn "Performance testing commit %s (%s build)" commit build
+    printfn "Performance testing commit %s" commit 
+
+    if debugBuild then printfn "WARNING: running test on a DEBUG build"
 
     doWarmup 50
 
@@ -95,19 +130,43 @@ let doPerformanceTest minPatternLen maxPatternLen repetitions =
     let fits = orders |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
     printfn "done"
 
-    let fits' = List.zip orders fits
-    let durations' = List.zip lengths durations
-    let resultFile = "perftest-results.csv"
+    {
+        Commit = commit
+        Durations = List.zip lengths durations
+        PolynomialFits = List.zip orders fits
+    }
 
-    if resultFile |> hasResultsFor commit build then
-        printfn "Result data for commit %A already saved. Printing results to screen:" commit
-        printfn "\nGoodness of polynomial fits:\n%A" fits'
-        printfn "\nMeasurements per pattern length:%A" durations'
-    else
-        printf "Saving results to %s..." resultFile
-        let csv = toCsvRecord commit build fits' durations'
-        File.AppendAllText (resultFile, csv)
-        printfn "done"
+let toChart newResult oldResults = 
+    {newResult with Commit = newResult.Commit + " (new)"}::oldResults
+    |> List.map (fun r -> Chart.Line (r.Durations, Name = r.Commit, XTitle = "pattern length", YTitle = "runtime (ms)"))
+    |> Chart.Combine
+    |> Chart.WithLegend ()
+    
+let print result chart =
+    printfn "Result data for commit %A already saved. Printing results to screen:" result.Commit
+    printfn "\nGoodness of polynomial fits:\n%A" result.PolynomialFits
+    printfn "\nMeasurements per pattern length:\n%A" result.Durations
+    Chart.Show chart
+
+let save csvFile result chart =
+    printf "Saving results to %s..." csvFile
+    let csv = toCsvRecord result
+    File.AppendAllText (csvFile, csv)
+    printfn "done"
+    printf "Rendering performance results to perftest-results.png..."
+    let imageFile = csvFile.Replace (".csv", ".png")
+    Chart.Save imageFile chart
+    printfn "done"
+
+let doPerformanceTest minPatternLen maxPatternLen repetitions =
+    let result = measurePerformance minPatternLen maxPatternLen repetitions
+    let resultFile = "perftest-results.csv" |> ensureCreated
+    let oldResults = fromCsv resultFile
+    let chart = toChart result oldResults
+
+    if oldResults |> contains result 
+    then print result chart
+    else save resultFile result chart
 
 [<EntryPoint>]
 let main args = 
