@@ -12,6 +12,12 @@ type TestResult = {
     PolynomialFits: (int * float) list
 }
 
+[<Literal>]
+let resultStore = "perftest-results.csv"
+
+[<Literal>]
+let resultChart = "perftest-results.png"
+
 let toFloats = List.map float >> List.toArray
 
 let delay f x = fun () -> f x
@@ -91,7 +97,7 @@ let fromCsvRecord (str:string) =
         Durations = parseTuples durationsOffset numDurations record
     }
 
-let fromCsv filename =
+let parseCsv filename =
     File.ReadAllLines filename
     |> Array.toList
     |> List.map fromCsvRecord
@@ -101,9 +107,7 @@ let contains result results =
     |> List.map (fun r -> r.Commit)
     |> List.contains result.Commit
 
-let ensureCreated filename = 
-    File.AppendAllText (filename, null)
-    filename
+let ensureCreated filename = File.AppendAllText (filename, null)
 
 let measurePerformance minPatternLen maxPatternLen repetitions =
     let commit = getCommitHash ()
@@ -131,11 +135,12 @@ let measurePerformance minPatternLen maxPatternLen repetitions =
         PolynomialFits = List.zip orders fits
     }
 
-let toChart newResult oldResults = 
-    {newResult with Commit = newResult.Commit + " (new)"}::oldResults
-    |> List.map (fun r -> Chart.Line (r.Durations, Name = r.Commit, XTitle = "pattern length", YTitle = "runtime (ms)"))
-    |> Chart.Combine
-    |> Chart.WithLegend ()
+let toChart = 
+    List.map (fun r -> Chart.Line (r.Durations, Name = r.Commit))
+    >> Chart.Combine
+    >> Chart.WithXAxis (Title = "pattern length")
+    >> Chart.WithYAxis (Title = "runtime (ms)")
+    >> Chart.WithLegend ()
     
 let print result chart =
     printfn "Result data for commit %A already saved. Printing results to screen:" result.Commit
@@ -143,32 +148,37 @@ let print result chart =
     printfn "\nMeasurements per pattern length:\n%A" result.Durations
     Chart.Show chart
 
-let save csvFile result chart =
-    printf "Saving results to %s..." csvFile
+let save result chart =
+    printf "Saving results to %s..." resultStore
     let csv = toCsvRecord result
-    File.AppendAllText (csvFile, csv)
+    File.AppendAllText (resultStore, csv)
     printfn "done"
-    printf "Rendering performance results to perftest-results.png..."
-    let imageFile = csvFile.Replace (".csv", ".png")
-    Chart.Save imageFile chart
+    printf "Rendering performance results to %s..." resultChart
+    Chart.Save resultChart chart
     printfn "done"
+
+let render chartF = parseCsv resultStore |> toChart |> chartF
 
 let doPerformanceTest minPatternLen maxPatternLen repetitions =
     let result = measurePerformance minPatternLen maxPatternLen repetitions
-    let resultFile = "perftest-results.csv" |> ensureCreated
-    let oldResults = fromCsv resultFile
-    let chart = toChart result oldResults
+    ensureCreated resultStore
+    let oldResults = parseCsv resultStore
+    let allResults = {result with Commit = result.Commit + " (new)"}::oldResults
+    let chart = toChart allResults
 
     if oldResults |> contains result 
     then print result chart
-    else save resultFile result chart
+    else save result chart
 
 [<EntryPoint>]
 let main args = 
     match args.Length with
+    | 1 when args.[0] = "--renderToFile" ->   render (Chart.Save resultChart)
+    | 1 when args.[0] = "--renderToScreen" -> render (Chart.Show)
     | 3 -> doPerformanceTest (int args.[0]) (int args.[1]) (int args.[2])
     | _ -> 
         printfn "Usage:   PerformanceTest.exe <min pattern length> <max pattern length> <number of repetitions>"
+        printfn "         PerformanceTest.exe --render"
         printfn "Example: PerformanceTest.exe 1 100 5"
 
     if Debugger.IsAttached then Console.ReadKey (true) |> ignore
