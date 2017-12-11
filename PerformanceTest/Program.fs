@@ -64,13 +64,6 @@ let getCommitHash () =
     | 0 -> output.Head
     | _ -> failwith (String.Join (Environment.NewLine, output))
 
-let debugBuild =
-#if DEBUG
-    true
-#else
-    false
-#endif
-
 let toCsvRecord {Commit = commit; PolynomialFits = fits; Durations = durations} =
     let toStr (l, r) = sprintf "%A; %A" l r
     let fits' = String.Join ("; ", fits |> List.map toStr)
@@ -116,9 +109,11 @@ let measurePerformance minPatternLen maxPatternLen repetitions =
     let commit = getCommitHash ()
     printfn "Performance testing commit %s" commit 
 
-    if debugBuild then printfn "WARNING: running test on a DEBUG build"
+#if DEBUG
+    printfn "WARNING: running test on DEBUG build"
+#endif
 
-    doWarmup 50
+    doWarmup 100
 
     printf "Running automaton with pattern of length 000 (00x)"
     let lengths = [minPatternLen..maxPatternLen]
