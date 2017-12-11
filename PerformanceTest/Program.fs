@@ -178,7 +178,8 @@ let main args =
     | 3 -> doPerformanceTest (int args.[0]) (int args.[1]) (int args.[2])
     | _ -> 
         printfn "Usage:   PerformanceTest.exe <min pattern length> <max pattern length> <number of repetitions>"
-        printfn "         PerformanceTest.exe --render"
+        printfn "         PerformanceTest.exe --renderToFile"
+        printfn "         PerformanceTest.exe --renderToScreen"
         printfn "Example: PerformanceTest.exe 1 100 5"
 
     if Debugger.IsAttached then Console.ReadKey (true) |> ignore
