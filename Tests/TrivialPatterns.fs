@@ -49,3 +49,9 @@ let ``escape character allows matching meta characters literally`` pattern text 
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
     Assert.True(result)
+
+[<Fact>]
+let ``can concat against any string wildcard`` () =
+    let M = GlobParser.toAutomaton' "*a"
+    let result = Automaton.run M "a"
+    Assert.True(result)

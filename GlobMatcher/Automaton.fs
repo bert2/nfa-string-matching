@@ -1,45 +1,39 @@
 ﻿namespace GlobMatcher
 
-type UniqueId = UniqueId of string
-type State = State of UniqueId
-type Word = Word of char | Range of char * char | Any | Epsilon
-type Transition = {Start: State; End: State; Accepts: Word}
-type Automaton = {Initial: State list; Final: State list; Transitions: Transition list}
+type Id = Id of string
+type Word = Word of char | Range of char * char | Any
+type State = State of Id * Word * State | Split of Id * State * State | Final
 
 module Automaton =
-    open Util
 
-    let private accepts word {Accepts = word'} = 
-        match word, word' with
-        | Word _, Any -> true
-        | Word c, Range (min, max) -> min <= c && c <= max
-        | _ -> word' = word
+    let getId state =
+        match state with
+        | State (id, _, _) -> id
+        | Split (id, _, _) -> id
+        | Final            -> Id "Final"
+    
+    let rec private step word state =
+        match word, state with
+        | w     , Split (_, left, right)                                      -> (step w left)@(step w right)
+        | _     , State (_, Any, next)                                        -> [next]
+        | Word c, State (_, Word c', next)          when c = c'               -> [next]
+        | Word c, State (_, Range (min, max), next) when min <= c && c <= max -> [next]
+        | _                                                                   -> []
 
-    let private isOutgoingFrom state {Start = start} = state = start
+    let private consume word =
+       List.collect (step word) >> List.distinctBy getId
 
-    let private getReachable word transitions state =
-        transitions
-        |> List.filter (isOutgoingFrom state) 
-        |> List.filter (accepts word) 
-        |> List.map (fun {End = state'} -> state')
+    let rec private expandEpsilons state =
+        match state with
+        | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
+        | state -> [state]
 
-    let private consume word transitions =
-        List.collect (getReachable word transitions) >> List.distinct
-
-    let rec private addEpsilonReachable transitions added =
-        let addEpsilonReachable' state =
-            let added' = getReachable Epsilon transitions state |> List.except (state::added)
-            match added' with 
-            | [] -> [state]
-            | _ -> state::addEpsilonReachable transitions (added@added') added'
-        List.collect addEpsilonReachable' >> List.distinct
-
-    let run {Initial = initial; Final = final; Transitions = transitions} text =
+    let run start text =
         let rec run' (text:string) current =
-            let current' = addEpsilonReachable transitions [] current
+            let current' = current |> List.collect expandEpsilons |> List.distinctBy getId
             if text.Length = 0 then
-                current' |> intersects final
+                current' |> List.contains Final
             else
-                let next = consume (Word text.[0]) transitions current'
+                let next = consume (Word text.[0]) current'
                 run' text.[1..] next
-        run' text initial
+        run' text [start]

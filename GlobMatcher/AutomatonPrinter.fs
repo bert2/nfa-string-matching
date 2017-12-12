@@ -2,29 +2,31 @@
 
 module AutomatonPrinter =
 
-    open System
-    open GlobMatcher
+    //open System
+    //open GlobMatcher
 
-    let private prefixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
+    //let private prefixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
 
-    let private escape c = 
-        match c with
-        | '\\' -> "\\\\"
-        | '"' -> "\\\""
-        | c -> string c
+    //let private escape c = 
+    //    match c with
+    //    | '\\' -> "\\\\"
+    //    | '"' -> "\\\""
+    //    | c -> string c
 
-    let private printState (State (UniqueId id)) = prefixDigitHead id
+    //let private printState (State (UniqueId id)) = prefixDigitHead id
 
-    let private printWord w =
-        match w with
-        | Word c -> escape c
-        | Range (min, max) -> sprintf "%c-%c" min max
-        | Any -> "*"
-        | Epsilon -> ""
+    //let private printWord w =
+    //    match w with
+    //    | Word c -> escape c
+    //    | Range (min, max) -> sprintf "%c-%c" min max
+    //    | Any -> "*"
+    //    | Epsilon -> ""
 
-    let private printTransition {Start = s; End = e; Accepts = w} =
-        sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
+    //let private printTransition {Start = s; End = e; Accepts = w} =
+    //    sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
 
-    let toDot {Transitions = transitions} =        
-        let transitions' = transitions |> List.map printTransition |> String.concat ";"
-        "digraph G {" + transitions' + "}"
+    //let toDot {Transitions = transitions} =        
+    //    let transitions' = transitions |> List.map printTransition |> String.concat ";"
+    //    "digraph G {" + transitions' + "}"
+
+    let toDot s = sprintf "%A" s
