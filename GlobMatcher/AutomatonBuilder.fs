@@ -32,13 +32,11 @@ module AutomatonBuilder =
 
     let rec concat s s' =
         match s, s' with
-        | s                       , Final -> s
         | Final                   , s     -> s
         | State (id, w, Final)    , s     -> State (id, w, s)
         | State (id, w, next)     , s     -> State (id, w, concat next s)
         | Split (id, left, Final) , s     -> Split (id, left, s)
-        | Split (id, Final, right), s     -> Split (id, s, right)
-        | Split (id, left, right) , s     -> Split (id, concat left s, concat right s)
+        | Split (id, left, right) , s     -> Split (id, left, concat right s)
     
     type NfaBuilder () =
         member x.YieldFrom m = m
