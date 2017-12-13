@@ -121,11 +121,11 @@ let measurePerformance minPatternLen maxPatternLen repetitions =
 
     printf "Running automaton with pattern of length 000 (00x)"
     let lengths = [minPatternLen..maxPatternLen]
-    let durations = lengths |> List.map (delay measureTimeForPatternLength) |> List.map (repeat 5)
+    let durations = lengths |> List.map (delay measureTimeForPatternLength) |> List.map (repeat repetitions)
     printfn ""
 
     printf "Analyzing runtime behaviour..."
-    let orders = [1..repetitions-1]
+    let orders = [1..4]
     let fits = orders |> List.map (fitPolynomial (toFloats lengths) (List.toArray durations))
     printfn "done"
 
@@ -135,11 +135,13 @@ let measurePerformance minPatternLen maxPatternLen repetitions =
         PolynomialFits = List.zip orders fits
     }
 
+let ensurePositiv (i, n) = (i, Math.Max (n, 1.))
+
 let toChart = 
-    List.map (fun r -> Chart.Line (r.Durations, Name = r.Commit))
+    List.map (fun r -> Chart.Line (r.Durations |> Seq.map ensurePositiv, Name = r.Commit))
     >> Chart.Combine
     >> Chart.WithXAxis (Title = "pattern length")
-    >> Chart.WithYAxis (Title = "runtime (ms)")
+    >> Chart.WithYAxis (Title = "runtime (ms)", Log = true)
     >> Chart.WithLegend ()
     
 let print result chart =
