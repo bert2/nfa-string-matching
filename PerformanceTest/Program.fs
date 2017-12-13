@@ -5,6 +5,7 @@ open FSharp.Charting
 open MathNet.Numerics
 open GlobMatcher
 open Proc
+open System.Text.RegularExpressions
 
 type TestResult = {
     Commit: string
@@ -32,11 +33,17 @@ let measure f =
     f () |> ignore
     timer.ElapsedMilliseconds
 
-let measureTimeForPatternLength n = 
+let measureNfaTimeForPatternLength n = 
     printf "\b\b\b\b\b\b\b\b\b%03i (" n
     let pattern, text = makeTestData "*" "a" n
     let automaton = GlobParser.toAutomaton' pattern
     measure (fun () -> Automaton.run automaton text)
+
+let measureRegexTimeForPatternLength n = 
+    printf "\b\b\b\b\b\b\b\b\b%03i (" n
+    let pattern, text = makeTestData ".*" "a" n
+    let regex = Regex pattern
+    measure (fun () -> regex.IsMatch text)
 
 let repeat n f =
     [1..n]
@@ -109,8 +116,8 @@ let contains result results =
 
 let ensureCreated filename = File.AppendAllText (filename, null)
 
-let measurePerformance minPatternLen maxPatternLen repetitions =
-    let commit = getCommitHash ()
+let measurePerformance f minPatternLen maxPatternLen repetitions getResultId =
+    let commit = getResultId ()
     printfn "Performance testing commit %s" commit 
 
 #if DEBUG
@@ -121,7 +128,7 @@ let measurePerformance minPatternLen maxPatternLen repetitions =
 
     printf "Running automaton with pattern of length 000 (00x)"
     let lengths = [minPatternLen..maxPatternLen]
-    let durations = lengths |> List.map (delay measureTimeForPatternLength) |> List.map (repeat repetitions)
+    let durations = lengths |> List.map (delay f) |> List.map (repeat repetitions)
     printfn ""
 
     printf "Analyzing runtime behaviour..."
@@ -161,8 +168,8 @@ let save result chart =
 
 let render chartF = parseCsv resultStore |> toChart |> chartF
 
-let doPerformanceTest minPatternLen maxPatternLen repetitions =
-    let result = measurePerformance minPatternLen maxPatternLen repetitions
+let doPerformanceTest f minPatternLen maxPatternLen repetitions getResultId =
+    let result = measurePerformance f minPatternLen maxPatternLen repetitions getResultId
     ensureCreated resultStore
     let oldResults = parseCsv resultStore
     let allResults = {result with Commit = result.Commit + " (new)"}::oldResults
@@ -173,15 +180,18 @@ let doPerformanceTest minPatternLen maxPatternLen repetitions =
     else save result chart
 
 [<EntryPoint>]
-let main args = 
+let main argv = 
+    let args = argv |> Array.map (fun s -> s.ToLower())
     match args.Length with
-    | 1 when args.[0] = "--renderToFile" ->   render (Chart.Save resultChart)
-    | 1 when args.[0] = "--renderToScreen" -> render (Chart.Show)
-    | 3 -> doPerformanceTest (int args.[0]) (int args.[1]) (int args.[2])
+    | 1 when args.[0] = "--rendertofile"    -> render (Chart.Save resultChart)
+    | 1 when args.[0] = "--rendertoscreen"  -> render (Chart.Show)
+    | 1 when args.[0] = "--testcsharpregex" -> doPerformanceTest measureRegexTimeForPatternLength 1 18 1 (fun () -> "C# Regex class")
+    | 3 -> doPerformanceTest measureNfaTimeForPatternLength (int args.[0]) (int args.[1]) (int args.[2]) getCommitHash
     | _ -> 
         printfn "Usage:   PerformanceTest.exe <min pattern length> <max pattern length> <number of repetitions>"
         printfn "         PerformanceTest.exe --renderToFile"
         printfn "         PerformanceTest.exe --renderToScreen"
+        printfn "         PerformanceTest.exe --testCSharpRegex"
         printfn "Example: PerformanceTest.exe 1 100 5"
 
     if Debugger.IsAttached then Console.ReadKey (true) |> ignore
