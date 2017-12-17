@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="TrivialPatterns.fs" />
     <Compile Include="GeneratedPatterns.fs" />
-    <Compile Include="AutomatonTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

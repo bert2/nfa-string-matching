@@ -45,13 +45,17 @@ let ``matches character ranges`` pattern text isMatch =
 [<InlineData(@"\?", "?")>]
 [<InlineData(@"\*", "*")>]
 [<InlineData(@"\\", @"\")>]
+[<InlineData(@"\[", "[")>]
+[<InlineData(@"\]", "]")>]
 let ``escape character allows matching meta characters literally`` pattern text =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
     Assert.True(result)
 
-[<Fact>]
-let ``can concat against any string wildcard`` () =
-    let M = GlobParser.toAutomaton' "*a"
-    let result = Automaton.run M "a"
+[<Theory>]
+[<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh")>]
+[<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh")>]
+let ``combines sub-automatons correctly`` pattern text =
+    let M = GlobParser.toAutomaton' pattern
+    let result = Automaton.run M text
     Assert.True(result)
