@@ -26,7 +26,7 @@ let matchingTextAndPatternCombo = gen {
 
 [<Fact>]
 let ``matching pattern and text are accepted`` () = 
-    Check.VerboseThrowOnFailure (Prop.forAll 
+    Check.One ({Config.VerboseThrowOnFailure with MaxTest = 1000}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let p = pattern
