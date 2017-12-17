@@ -61,6 +61,6 @@ The test run for C#'s regex class can be executed like this:
 ## TODO
 
 * ~~Finish `README.md`~~
-* ~~Render performance graph y axis starting at 0~~
-* Cache DFA states
+* ~~Render performance graph y axis starting at 0~~ *(unable to produce a nicely looking rendering)*
+* ~~Cache DFA states~~ *(no noticeable performance increase for now)*
 * Implement regular expression syntax
