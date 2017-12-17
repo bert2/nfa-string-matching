@@ -14,11 +14,13 @@ module Automaton =
     
     let rec private step word state =
         match word, state with
-        | w     , Split (_, left, right)                                      -> (step w left)@(step w right)
-        | _     , State (_, Any, next)                                        -> [next]
-        | Word c, State (_, Word c', next)          when c = c'               -> [next]
-        | Word c, State (_, Range (min, max), next) when min <= c && c <= max -> [next]
-        | _                                                                   -> []
+        | w     , Split (_, left, right)            -> (step w left)@(step w right)
+        | _     , State (_, Any, next)              -> [next]
+        | Word c, State (_, Word c', next)          
+            when c = c'                             -> [next]
+        | Word c, State (_, Range (min, max), next) 
+            when min <= c && c <= max               -> [next]
+        | _                                         -> []
 
     let rec private expandEpsilons state =
         match state with
