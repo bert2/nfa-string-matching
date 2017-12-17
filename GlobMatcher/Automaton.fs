@@ -20,20 +20,25 @@ module Automaton =
         | Word c, State (_, Range (min, max), next) when min <= c && c <= max -> [next]
         | _                                                                   -> []
 
-    let private consume word =
-       List.collect (step word) >> List.distinctBy getId
-
     let rec private expandEpsilons state =
         match state with
         | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
         | state -> [state]
+    
+    let private consume word =
+       List.collect (step word) 
+       >> List.distinctBy getId
+       >> List.collect expandEpsilons 
+       >> List.distinctBy getId 
 
     let run start text =
         let rec run' (text:string) current =
-            let current' = current |> List.collect expandEpsilons |> List.distinctBy getId
             if text.Length = 0 then
-                current' |> List.contains Final
+                current |> List.contains Final
             else
-                let next = consume (Word text.[0]) current'
+                let next = consume (Word text.[0]) current
                 run' text.[1..] next
-        run' text [start]
+        start 
+        |> expandEpsilons
+        |> List.distinctBy getId
+        |> run' text
