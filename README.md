@@ -60,7 +60,7 @@ The test run for C#'s regex class can be executed like this:
 
 ## TODO
 
-* Finish `README.md`
-* Render performance graph y axis starting at 0
+* ~~Finish `README.md`~~
+* ~~Render performance graph y axis starting at 0~~
 * Cache DFA states
 * Implement regular expression syntax
