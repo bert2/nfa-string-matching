@@ -26,10 +26,7 @@ module Automaton =
         | state -> [state]
     
     let private consume word =
-       List.collect (step word) 
-       >> List.distinctBy getId
-       >> List.collect expandEpsilons 
-       >> List.distinctBy getId 
+       List.collect (step word) >> List.collect expandEpsilons >> List.distinctBy getId
 
     let run start text =
         let rec run' (text:string) current =
@@ -38,7 +35,4 @@ module Automaton =
             else
                 let next = consume (Word text.[0]) current
                 run' text.[1..] next
-        start 
-        |> expandEpsilons
-        |> List.distinctBy getId
-        |> run' text
+        expandEpsilons start |> run' text
