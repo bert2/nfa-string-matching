@@ -31,9 +31,9 @@ The test matches the input text "a<sup>n</sup>" against the glob pattern "\*<sup
 
 ![Graph of performance test results](/PerformanceTest/perftest-results.png)
 
-The figure above shows the most recent performance graph. The pattern length *n* is plotted against the X axis, the runtime in milliseconds against the Y axis. The Y axis has been log-scaled in order to capture the wide range of measured runtimes more accurately. The legend shows the commit hash for each performance test ordered from oldest (top) to newest (bottom). Because the used plot library (`FSharp.Charting`) throws errors when rendering `0` values on a log-scaled axis, the measurements have been clamped to always be greater or equal *1 ms*.
+The figure above shows the most recent performance graph. The pattern length *n* is plotted against the X axis, the runtime in milliseconds against the Y axis. The Y axis has been log-scaled in order to capture the wide range of measured runtimes more accurately. The legend shows the commit hash for each performance test ordered from oldest (top) to newest (bottom). Because the utilized plot library ([FSharp.Charting](https://fslab.org/FSharp.Charting/)) throws errors when rendering `0` values on a log-scaled axis, the measurements have been clamped to always be greater or equal *1 ms*.
 
-For comparison the results when matching the input text with the analogous regular expression ".\*<sup>n</sup>a<sup>n</sup>" with [C#'s regex implementation](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396) have been plotted as well.
+For comparison the results when matching the input text against the analogous regular expression ".\*<sup>n</sup>a<sup>n</sup>" with [C#'s regex implementation](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396) have been plotted as well.
 
 Each test run of the implementation was executed and recorded the following way:
 
