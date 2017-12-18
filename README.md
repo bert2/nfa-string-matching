@@ -65,6 +65,7 @@ The test run for C#'s regex class can be executed like this:
 * ~~Finish `README.md`~~
 * ~~Render performance graph y axis starting at 0~~ *(unable to produce a nicely looking rendering)*
 * ~~Cache DFA states~~ *(no noticeable performance increase for now)*
+* Fix AutomatonPrinter to reflect breaking changes of the Automaton module
 * Use FParsec instead of diy'ed parser combinator
 * Clean up messy performance test code
   * Split into modules
