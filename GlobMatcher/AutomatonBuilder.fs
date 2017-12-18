@@ -40,11 +40,3 @@ module AutomatonBuilder =
         | Split (id, left, Final) , s     -> Split (id, left, s)
         | Split (id, left, right) , s     -> Split (id, left, concat right s)
     
-    type NfaBuilder () =
-        member x.YieldFrom m = m
-        member x.For (m, f) = m |> Seq.map f |> Seq.fold concat empty
-        member x.Combine (m, m') = concat m m'
-        member x.Delay f = f ()
-        member x.Zero () = empty
-
-    let nfa = NfaBuilder ()
