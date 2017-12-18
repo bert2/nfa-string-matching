@@ -6,13 +6,13 @@ Given a glob pattern and an input text the implementation first parses the patte
 
 ## Supported Glob Syntax
 
-| Pattern             | Description                                                 |
-|:-------------------:| ----------------------------------------------------------- |
-| `a`, `b`, …         | Simple match looking for the specified character            |
-| `?`                 | Matches any character                                       |
-| `*`                 | Matches any string of characters including the empty string |
-| `[a-f]`, `[0-9]`, … | Matches any character within the specified range            |
-| `\*`, `\?`, `\\`, … | Escape character for matching meta characters literally     |
+| Pattern                      | Description                                                 |
+|:----------------------------:| ----------------------------------------------------------- |
+| `a`, `b`, …                  | Simple match looking for the specified character            |
+| `?`                          | Matches any character                                       |
+| `*`                          | Matches any string of characters including the empty string |
+| `[a-f]`, `[0-9]`, …          | Matches any character within the specified range            |
+| `\*`, `\?`, `\\`, `\[`, `\]` | Escape character for matching meta characters literally     |
 
 ## Build
 
