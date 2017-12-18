@@ -39,7 +39,7 @@ let main argv =
     match GlobParser.toAutomaton pattern with
     | Failure msg -> 
         printfn "%s" msg
-        exit 1
+        exit 2
     | Success a ->
         if printGraph then printGravizoLink a
         let result = Automaton.run a text
