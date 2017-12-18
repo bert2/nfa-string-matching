@@ -39,4 +39,3 @@ module AutomatonBuilder =
         | State (id, w, next)     , s     -> State (id, w, concat next s)
         | Split (id, left, Final) , s     -> Split (id, left, s)
         | Split (id, left, right) , s     -> Split (id, left, concat right s)
-    
