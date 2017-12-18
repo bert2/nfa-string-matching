@@ -2,10 +2,14 @@
 
 module AutomatonBuilder =
 
-    open Util
     open GlobMatcher
+    open System
+    open System.Text.RegularExpressions
 
-    let private newId () = Id <| shortId ()
+    let private newId () = 
+        let guid = Guid.NewGuid().ToByteArray() |> Convert.ToBase64String
+        let id = Regex.Replace (guid, "[/+=]", "")
+        Id <| id
 
     let empty = Final
 
