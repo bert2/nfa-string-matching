@@ -7,7 +7,7 @@ module AutomatonBuilder =
 
     let private newId () = Id <| shortId ()
 
-    let makeEmpty () = Final
+    let empty = Final
 
     let makeChar c =
         let f = Final
@@ -25,9 +25,11 @@ module AutomatonBuilder =
         and s0 = Split (newId (), s1, f)
         s0
 
-    let makeRange min max =
+    let makeRange (minChar, maxChar) =
+        let minChar' = min minChar maxChar
+        let maxChar' = max minChar maxChar
         let f = Final
-        let s = State (newId (), Range (min, max), f)
+        let s = State (newId (), Range (minChar', maxChar'), f)
         s
 
     let rec concat s s' =
@@ -40,9 +42,9 @@ module AutomatonBuilder =
     
     type NfaBuilder () =
         member x.YieldFrom m = m
-        member x.For (m, f) = m |> Seq.map f |> Seq.fold concat (makeEmpty ())
+        member x.For (m, f) = m |> Seq.map f |> Seq.fold concat empty
         member x.Combine (m, m') = concat m m'
         member x.Delay f = f ()
-        member x.Zero () = makeEmpty ()
+        member x.Zero () = empty
 
     let nfa = NfaBuilder ()

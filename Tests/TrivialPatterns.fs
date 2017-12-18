@@ -10,7 +10,7 @@ open GlobMatcher
 let ``matches literal characters`` pattern text isMatch =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.Equal(isMatch, result)
+    Assert.Equal (isMatch, result)
 
 
 [<Theory>]
@@ -19,7 +19,7 @@ let ``matches literal characters`` pattern text isMatch =
 let ``matches the any character wildcard "?"`` pattern text isMatch =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.Equal(isMatch, result)
+    Assert.Equal (isMatch, result)
 
 [<Theory>]
 [<InlineData("*", "a")>]
@@ -28,7 +28,7 @@ let ``matches the any character wildcard "?"`` pattern text isMatch =
 let ``matches then any string wildcard "*"`` pattern text =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.True(result)
+    Assert.True result
 
 [<Theory>]
 [<InlineData(@"[b-d]", "a", false)>]
@@ -39,7 +39,7 @@ let ``matches then any string wildcard "*"`` pattern text =
 let ``matches character ranges`` pattern text isMatch =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.Equal(isMatch, result)
+    Assert.Equal (isMatch, result)
 
 [<Theory>]
 [<InlineData(@"\?", "?")>]
@@ -50,12 +50,12 @@ let ``matches character ranges`` pattern text isMatch =
 let ``escape character allows matching meta characters literally`` pattern text =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.True(result)
+    Assert.True result
 
 [<Theory>]
 [<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh")>]
 [<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh")>]
-let ``combines sub-automatons correctly`` pattern text =
+let ``can combine automatons`` pattern text =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
-    Assert.True(result)
+    Assert.True result

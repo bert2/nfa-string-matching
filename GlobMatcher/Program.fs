@@ -38,7 +38,7 @@ let main argv =
     let (pattern, text, printGraph) = getInputs argv
     match GlobParser.toAutomaton pattern with
     | Failure msg -> 
-        printfn "%s" msg
+        printfn "Incorrect pattern:\n%s" msg
         exit 2
     | Success a ->
         if printGraph then printGravizoLink a
