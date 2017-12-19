@@ -2,8 +2,8 @@
 
 module GlobParser = 
 
-    open AutomatonBuilder
     open FParsec
+    open AutomatonBuilder
     
     let private anyCharWildcard = skipChar '?'
 

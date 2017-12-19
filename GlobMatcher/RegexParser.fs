@@ -2,15 +2,25 @@
 
 module RegexParser = 
 
-    open AutomatonBuilder
     open FParsec
+    open AutomatonBuilder
     
-    let private token =
+    [<Literal>]
+    let private metaCharacters = "*+?"
+
+    let private expr, expr' = createParserForwardedToRef<State, unit> ()
+
+    let private character = noneOf metaCharacters
+
+    expr' :=
         choice [
-            anyChar |>> makeChar
+            character .>>? skipChar '*' |>> makeZeroOrMoreChar
+            character .>>? skipChar '+' |>> makeOneOrMoreChar
+            character .>>? skipChar '?' |>> makeZeroOrOneChar
+            character                   |>> makeChar
         ]
 
-    let private parser = many token |>> List.fold concat empty
+    let private parser = many expr .>> eof |>> List.fold concat empty
 
     let parsePattern succeed fail pattern =
         let result = run parser pattern
