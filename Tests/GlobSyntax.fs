@@ -1,4 +1,4 @@
-﻿module TrivialPatterns
+﻿module GlobSyntax
 
 open Xunit
 open GlobMatcher

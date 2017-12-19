@@ -1,4 +1,4 @@
-﻿module GeneratedPatterns
+﻿module GeneratedGlobPatterns
 
 open Xunit
 open FsCheck

@@ -53,8 +53,9 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="TrivialPatterns.fs" />
-    <Compile Include="GeneratedPatterns.fs" />
+    <Compile Include="GlobSyntax.fs" />
+    <Compile Include="GeneratedGlobPatterns.fs" />
+    <Compile Include="RegexSyntax.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
