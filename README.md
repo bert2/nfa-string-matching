@@ -37,6 +37,14 @@ The figure above shows the most recent performance graph. The pattern length *n*
 
 For comparison the results when matching the input text against the analogous regular expression ".\*<sup>n</sup>a<sup>n</sup>" with [C#'s regex implementation](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396) have been plotted as well (test cut short at *n = 18*, because there are only so many minutes left until the sun expands and swallows our star system).
 
+### A Note on the Performance Results
+
+Up until commit 7333567 an NFA implementation was used that lend itself to easy concatination of automatons, but required more cycles to execute them. Later commits used a refactored version with opposite properties, i.e. faster execution at the expense of a more complex construction.
+
+Commit 91ed910 introduced another refactoring that fixed a major bug. Due to this bug incorrect automatons were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
+
+### Reproducing the Performance Tests
+
 Each test run of the implementation was executed and recorded the following way:
 
 ```
@@ -50,7 +58,6 @@ Saving results to perftest-results.csv...done
 Rendering performance results to perftest-results.png...done
 > git add *
 > git commit -m '...'
-> git push
 ```
 
 The test run for C#'s regex class can be executed like this:
