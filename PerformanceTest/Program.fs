@@ -172,7 +172,7 @@ let doPerformanceTest f minPatternLen maxPatternLen repetitions getResultId =
     let result = measurePerformance f minPatternLen maxPatternLen repetitions getResultId
     ensureCreated resultStore
     let oldResults = parseCsv resultStore
-    let allResults = {result with Commit = result.Commit + " (new)"}::oldResults
+    let allResults = oldResults@[result]
     let chart = toChart allResults
 
     if oldResults |> contains result 
