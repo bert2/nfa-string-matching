@@ -34,10 +34,10 @@ module GlobParser =
             anyChar           |>> makeChar
         ]
 
-    let private parser = many token |>> List.foldBack' finish empty
+    let private parser = many token |>> List.foldBack' AutomatonBuilder.run empty
 
     let parsePattern succeed fail pattern =
-        let result = run parser pattern
+        let result = CharParsers.run parser pattern
         match result with
         | Failure (msg, _, _) -> fail msg
         | Success (a, _, _)   -> succeed a
