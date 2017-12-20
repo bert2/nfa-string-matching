@@ -9,6 +9,8 @@ module GlobParser =
 
     let private anyStringWildcard = skipChar '*'
 
+    let x = anyStringWildcard
+
     let private escapableChar = 
         anyOf @"?*[]\" 
         <?> @"'?', '*', '[', ']', or '\'"
@@ -32,7 +34,7 @@ module GlobParser =
             anyChar           |>> makeChar
         ]
 
-    let private parser = many token |>> List.fold concat empty
+    let private parser = many token |>> List.foldBack' finish empty
 
     let parsePattern succeed fail pattern =
         let result = run parser pattern

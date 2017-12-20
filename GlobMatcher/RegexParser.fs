@@ -8,7 +8,7 @@ module RegexParser =
     [<Literal>]
     let private metaCharacters = "*+?"
 
-    let private expr, expr' = createParserForwardedToRef<State, unit> ()
+    let private expr, expr' = createParserForwardedToRef<State -> State, unit> ()
 
     let private character = noneOf metaCharacters
 
@@ -20,7 +20,7 @@ module RegexParser =
             character                   |>> makeChar
         ]
 
-    let private parser = many expr .>> eof |>> List.fold concat empty
+    let private parser = many expr .>> eof |>> List.foldBack' finish empty
 
     let parsePattern succeed fail pattern =
         let result = run parser pattern

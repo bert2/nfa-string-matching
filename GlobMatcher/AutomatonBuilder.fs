@@ -14,51 +14,39 @@ module AutomatonBuilder =
 
     let makeEmpty () = empty
 
-    let makeChar c =
-        let f = Final
-        let s = State (newId (), Word c, f)
+    let makeChar c next =
+        let s = State (newId (), Word c, next)
         s
 
-    let makeAnyChar () =
-        let f = Final
-        let s1 = State (newId (), Any, f)
+    let makeAnyChar () next =
+        let s1 = State (newId (), Any, next)
         s1
 
-    let makeAnyString () =
-        let f = Final
+    let makeAnyString () next =
         let rec s1 = State (newId (), Any, s0)
-        and s0 = Split (newId (), s1, f)
+        and s0 = Split (newId (), s1, next)
         s0
 
-    let makeZeroOrMoreChar c =
+    let makeZeroOrMoreChar c next =
         let f = Final
-        let rec s0 = Split (newId (), s1, f)
+        let rec s0 = Split (newId (), s1, next)
         and s1 = State (newId (), Word c, s0)
         s0
 
-    let makeOneOrMoreChar c =
-        let f = Final
+    let makeOneOrMoreChar c next =
         let rec s0 = State (newId (), Word c, s1)
-        and s1 = Split (newId (), s0, f)
+        and s1 = Split (newId (), s0, next)
         s0
 
-    let makeZeroOrOneChar c =
-        let f = Final
-        let s1 = State (newId (), Word c, f)
-        let s0 = Split (newId (), s1, f)
+    let makeZeroOrOneChar c next =
+        let s1 = State (newId (), Word c, next)
+        let s0 = Split (newId (), s1, next)
         s0
 
-    let makeRange (minChar, maxChar) =
+    let makeRange (minChar, maxChar) next =
         let minChar' = min minChar maxChar
         let maxChar' = max minChar maxChar
-        let f = Final
-        let s = State (newId (), Range (minChar', maxChar'), f)
+        let s = State (newId (), Range (minChar', maxChar'), next)
         s
 
-    let rec concat s0 s1 =
-        match s0, s1 with
-        | Final                   , s     -> s
-        | State (id, w, Final)    , s     -> State (id, w, s)
-        | State (id, w, next)     , s     -> State (id, w, concat next s)
-        | Split (id, left, Final) , s     -> Split (id, left, s)
-        | Split (id, left, right) , s     -> Split (id, left, concat right s)
+    let finish proto next = proto next
