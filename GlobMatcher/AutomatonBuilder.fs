@@ -4,13 +4,19 @@ module AutomatonBuilder =
 
     type Prototype = Prototype of (State -> State)
 
+    let zero = Prototype (fun next -> next)
+
+    let run (Prototype finish) next = finish next
+
+    let combine (Prototype finish) (Prototype finish') =
+        Prototype (fun next ->
+            finish <| finish' next)
+
     let private newId = 
         let mutable i = -1
         fun () ->
             i <- i + 1
             i  |> string |> Id
-
-    let run (Prototype finish) next = finish next
 
     let empty = Final
 
@@ -32,6 +38,12 @@ module AutomatonBuilder =
         Prototype (fun next ->
             let rec s0 = Split (newId (), s1, next)
             and s1 = State (newId (), Word c, s0)
+            s0)
+
+    let makeZeroOrMore (Prototype finishInner) =
+        Prototype (fun next ->
+            let rec s0 = Split (newId (), s1, next)
+            and s1 = finishInner s0
             s0)
 
     let makeOneOrMoreChar c =

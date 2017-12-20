@@ -6,14 +6,17 @@ module RegexParser =
     open AutomatonBuilder
     
     [<Literal>]
-    let private metaCharacters = "*+?"
+    let private metaCharacters = "*+?()"
 
     let private expr, expr' = createParserForwardedToRef<Prototype, unit> ()
 
     let private character = noneOf metaCharacters
 
+    let private subexpr = skipChar '(' >>. many1 expr .>> skipChar ')'
+
     expr' :=
         choice [
+            subexpr                     |>> List.foldBack' combine zero
             character .>>? skipChar '*' |>> makeZeroOrMoreChar
             character .>>? skipChar '+' |>> makeOneOrMoreChar
             character .>>? skipChar '?' |>> makeZeroOrOneChar
