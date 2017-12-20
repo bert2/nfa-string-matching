@@ -2,8 +2,6 @@
 
 module AutomatonBuilder =
 
-    open GlobMatcher
-
     type Prototype = Prototype of (State -> State)
 
     let private newId = 
