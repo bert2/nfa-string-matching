@@ -45,6 +45,7 @@ let ``option matches zero or one character`` pattern text isMatch =
 [<InlineData("a(bc)", "abc", true)>]
 [<InlineData("a(bc)d", "abcd", true)>]
 [<InlineData("a(bc)d", "ad", false)>]
+[<InlineData("(a(b)(c(d)))(e)", "abcde", true)>]
 let ``parantheses form subexpressions`` pattern text isMatch =
     let M = RegexParser.toAutomaton' pattern
     let result = Automaton.run M text
