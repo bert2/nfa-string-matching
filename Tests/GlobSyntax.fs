@@ -55,11 +55,11 @@ let ``escape character allows matching meta characters literally`` pattern text 
 
 [<Theory>]
 [<InlineData(@"*b", "b", true)>]
-//[<InlineData(@"*b", "ab", true)>]
-//[<InlineData(@"*b", "aab", true)>]
-//[<InlineData(@"*b", "c", false)>]
-//[<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh", true)>]
-//[<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh", true)>]
+[<InlineData(@"*b", "ab", true)>]
+[<InlineData(@"*b", "aab", true)>]
+[<InlineData(@"*b", "c", false)>]
+[<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh", true)>]
+[<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh", true)>]
 let ``can combine automatons`` pattern text isMatch =
     let M = GlobParser.toAutomaton' pattern
     let result = Automaton.run M text
