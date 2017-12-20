@@ -2,7 +2,7 @@
 
 module AutomatonBuilder =
 
-    type Prototype = Prototype of (State -> State)
+    type Prototype = Prototype of (State -> State) | MetaPrototype of (State -> Prototype)
 
     let zero = Prototype (fun next -> next)
 
@@ -52,11 +52,29 @@ module AutomatonBuilder =
             and s1 = Split (newId (), s0, next)
             s0)
 
+    let makeOneOrMore (Prototype finishInner) =
+        Prototype (fun next ->
+            let rec s1 = Split (newId (), s0, next)
+            and s0 = finishInner s1
+            s0)
+
     let makeZeroOrOneChar c =
         Prototype (fun next ->
             let s1 = State (newId (), Word c, next)
             let s0 = Split (newId (), s1, next)
             s0)
+
+    let makeZeroOrOne (Prototype finishInner) =
+        Prototype (fun next ->
+            let s1 = finishInner next
+            let s0 = Split (newId (), s1, next)
+            s0)
+
+    let makeZeroOrOne' () =
+        MetaPrototype (fun inner ->
+            Prototype (fun next ->
+                let s0 = Split (newId (), inner, next)
+                s0))
 
     let makeRange (minChar, maxChar) =
         Prototype (fun next ->

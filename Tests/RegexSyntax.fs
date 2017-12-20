@@ -13,10 +13,33 @@ let ``matches literal characters`` pattern text isMatch =
     Assert.Equal (isMatch, result)
 
 [<Theory>]
+[<InlineData("(a)", "a", true)>]
+[<InlineData("(a)", "b", false)>]
+[<InlineData("(ab)", "ab", true)>]
+[<InlineData("a(bc)", "abc", true)>]
+[<InlineData("a(bc)d", "abcd", true)>]
+[<InlineData("a(bc)d", "ad", false)>]
+[<InlineData("(a(b)(c(d)))(e)", "abcde", true)>]
+let ``parantheses form subexpressions`` pattern text isMatch =
+    let M = RegexParser.toAutomaton' pattern
+    let result = Automaton.run M text
+    Assert.Equal (isMatch, result)
+
+[<Theory>]
 [<InlineData("a*", "", true)>]
 [<InlineData("a*", "a", true)>]
 [<InlineData("a*", "aa", true)>]
 let ``Kleene star matches zero or more characters`` pattern text isMatch =
+    let M = RegexParser.toAutomaton' pattern
+    let result = Automaton.run M text
+    Assert.Equal (isMatch, result)
+
+[<Theory>]
+[<InlineData("(ab)*", "", true)>]
+[<InlineData("(ab)*", "ab", true)>]
+[<InlineData("(ab)*", "abab", true)>]
+[<InlineData("(ab)*", "abcabc", false)>]
+let ``Kleene star matches zero or more subexpressions`` pattern text isMatch =
     let M = RegexParser.toAutomaton' pattern
     let result = Automaton.run M text
     Assert.Equal (isMatch, result)
@@ -31,22 +54,29 @@ let ``Kleene plus matches one or more characters`` pattern text isMatch =
     Assert.Equal (isMatch, result)
 
 [<Theory>]
+[<InlineData("(ab)+", "", false)>]
+[<InlineData("(ab)+", "ab", true)>]
+[<InlineData("(ab)+", "abab", true)>]
+[<InlineData("(ab)+", "abcabc", false)>]
+let ``Kleene plus matches one or more subexpressions`` pattern text isMatch =
+    let M = RegexParser.toAutomaton' pattern
+    let result = Automaton.run M text
+    Assert.Equal (isMatch, result)
+
+[<Theory>]
 [<InlineData("a?", "", true)>]
 [<InlineData("a?", "a", true)>]
+[<InlineData("a?", "aa", false)>]
 let ``option matches zero or one character`` pattern text isMatch =
     let M = RegexParser.toAutomaton' pattern
     let result = Automaton.run M text
     Assert.Equal (isMatch, result)
 
 [<Theory>]
-[<InlineData("(a)", "a", true)>]
-[<InlineData("(a)", "b", false)>]
-[<InlineData("(ab)", "ab", true)>]
-[<InlineData("a(bc)", "abc", true)>]
-[<InlineData("a(bc)d", "abcd", true)>]
-[<InlineData("a(bc)d", "ad", false)>]
-[<InlineData("(a(b)(c(d)))(e)", "abcde", true)>]
-let ``parantheses form subexpressions`` pattern text isMatch =
+[<InlineData("(ab)?", "", true)>]
+[<InlineData("(ab)?", "ab", true)>]
+[<InlineData("(ab)?", "abab", false)>]
+let ``option matches zero or one subexpression`` pattern text isMatch =
     let M = RegexParser.toAutomaton' pattern
     let result = Automaton.run M text
     Assert.Equal (isMatch, result)
