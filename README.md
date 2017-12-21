@@ -72,8 +72,8 @@ The test run for C#'s regex class can be executed like this:
 * ~~Finish `README.md`~~
 * ~~Render performance graph y axis starting at 0~~ *(unable to produce a nicely looking rendering)*
 * ~~Use FParsec instead of diy'ed parser combinator~~
-* Cache DFA states
-* Fix AutomatonPrinter to reflect breaking changes of the Automaton module
+* ~~Fix AutomatonPrinter to reflect breaking changes of the Automaton module~~
+* Cache DFA state
 * Implement regular expression syntax
   * CLI to regular expression matcher
   * ~~Kleene star~~
