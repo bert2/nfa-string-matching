@@ -80,8 +80,9 @@ The test run for C#'s regex class can be executed like this:
   * ~~Kleene plus~~
   * ~~Optional match~~
   * ~~Submatch expressions between '(' and ')'~~
-  * Alternations
   * Metacharacter '.'
+  * Metacharacter escaping
+  * Alternations
   * Character classes
   * Counted repetitions
 * FSCheck regular expression matcher
