@@ -11,32 +11,33 @@ module RegexParser =
 
     let private metaChars = "()" + postfixOps
 
-    let private applyPostfix op = 
+    let private applyPostfix (proto, op) = 
         match op with
-        | '*' -> makeZeroOrMore
-        | '+' -> makeOneOrMore
-        | '?' -> makeZeroOrOne
-        | _   -> id
+        | '*' -> makeZeroOrMore proto
+        | '+' -> makeOneOrMore proto
+        | '?' -> makeZeroOrOne proto
+        | _   -> proto
 
-    let private applyPostfixToLast (protos, op) = 
-        let last = List.last protos |> applyPostfix op
-        (List.front protos) @ [last]
+    let private matchExpr, matchExpr' = createParserForwardedToRef<Prototype, unit> ()
 
-    let private matchExpr, matchExprRef = createParserForwardedToRef<Prototype, unit> ()
+    let private charMatch = noneOf metaChars
 
-    let private character = noneOf metaChars
+    let private postfixOp = anyOf postfixOps <|>% noop
 
-    let private sequence = many1 matchExpr .>>. (anyOf postfixOps <|>% noop) |>> applyPostfixToLast
+    let private postfixedMatchExpr = matchExpr .>>. postfixOp |>> applyPostfix
 
-    let private subexpr = skipChar '(' >>. many sequence .>> skipChar ')'
+    let private submatchExpr = skipChar '(' >>. many postfixedMatchExpr .>> skipChar ')'
 
-    matchExprRef :=
+    matchExpr' :=
         choice [
-            subexpr   |>> List.concat |>> List.foldBack' combine zero
-            character |>> makeChar
+            submatchExpr |>> List.foldBack' combine zero
+            charMatch    |>> makeChar
         ]
 
-    let private parser = many sequence .>> eof |>> List.concat |>> List.foldBack' AutomatonBuilder.run empty
+    let private parser = 
+        many postfixedMatchExpr 
+        .>> eof 
+        |>> List.foldBack' AutomatonBuilder.run empty
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern

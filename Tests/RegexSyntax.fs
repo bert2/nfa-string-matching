@@ -2,15 +2,19 @@
 
 open Xunit
 open GlobMatcher
+open Result
+open Xunit
+
+let private assertMatch pattern text isMatch =
+    let a = RegexParser.toAutomaton' pattern
+    let result = Automaton.run a text
+    Assert.Equal (isMatch, result)
 
 [<Theory>]
 [<InlineData("b", "b", true)>]
 [<InlineData("b", "a", false)>]
 [<InlineData("b", "", false)>]
-let ``matches literal characters`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``matches literal characters`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("(a)", "a", true)>]
@@ -19,77 +23,70 @@ let ``matches literal characters`` pattern text isMatch =
 [<InlineData("a(bc)", "abc", true)>]
 [<InlineData("a(bc)d", "abcd", true)>]
 [<InlineData("a(bc)d", "ad", false)>]
-[<InlineData("(a(b)(c(d)))(e)", "abcde", true)>]
-let ``parantheses form subexpressions`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``parantheses form subexpressions`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("a*", "", true)>]
 [<InlineData("a*", "a", true)>]
 [<InlineData("a*", "aa", true)>]
-let ``Kleene star matches zero or more characters`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``Kleene star matches zero or more characters`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("(ab)*", "", true)>]
 [<InlineData("(ab)*", "ab", true)>]
 [<InlineData("(ab)*", "abab", true)>]
 [<InlineData("(ab)*", "abcabc", false)>]
-let ``Kleene star matches zero or more subexpressions`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``Kleene star matches zero or more subexpressions`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("a+", "", false)>]
 [<InlineData("a+", "a", true)>]
 [<InlineData("a+", "aa", true)>]
-let ``Kleene plus matches one or more characters`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``Kleene plus matches one or more characters`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("(ab)+", "", false)>]
 [<InlineData("(ab)+", "ab", true)>]
 [<InlineData("(ab)+", "abab", true)>]
 [<InlineData("(ab)+", "abcabc", false)>]
-let ``Kleene plus matches one or more subexpressions`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``Kleene plus matches one or more subexpressions`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("a?", "", true)>]
 [<InlineData("a?", "a", true)>]
 [<InlineData("a?", "aa", false)>]
-let ``option matches zero or one character`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``option matches zero or one character`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("(ab)?", "", true)>]
 [<InlineData("(ab)?", "ab", true)>]
 [<InlineData("(ab)?", "abab", false)>]
-let ``option matches zero or one subexpression`` pattern text isMatch =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``option matches zero or one submatch expression`` p t r = assertMatch p t r
 
 [<Theory>]
-[<InlineData("a*b", "b")>]
-[<InlineData("a*b", "ab")>]
-[<InlineData("a*b", "aab")>]
-[<InlineData("ab*c+d?e", "abbbcccde")>]
-[<InlineData("ab*c+d?e", "acccde")>]
-[<InlineData("ab*c+d?e", "abbbccce")>]
-[<InlineData("ab*c+d?e", "accce")>]
-let ``can combine automatons`` pattern text =
-    let M = RegexParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.True result
+[<InlineData("(a(b)(c(d)))(e)", "abcde", true)>]
+[<InlineData("a(b(c(d)+)*e)f", "abcddcdddef", true)>]
+let ``submatch expressions can be nested`` p t r = assertMatch p t r
+
+[<Theory>]
+[<InlineData("a*b", "b", true)>]
+[<InlineData("a*b", "ab", true)>]
+[<InlineData("a*b", "aab", true)>]
+[<InlineData("ab*c+d?e", "abbbcccde", true)>]
+[<InlineData("ab*c+d?e", "acccde", true)>]
+[<InlineData("ab*c+d?e", "abbbccce", true)>]
+[<InlineData("ab*c+d?e", "accce", true)>]
+let ``can combine automatons`` p t r = assertMatch p t r
+
+[<Theory>]
+[<InlineData("*")>]
+[<InlineData("+")>]
+[<InlineData("?")>]
+[<InlineData("**")>]
+[<InlineData("(")>]
+[<InlineData(")")>]
+[<InlineData("(*)")>]
+let ``invalid pattern gives parser error`` pattern =
+    match RegexParser.toAutomaton pattern with
+    | Failure _ -> ()
+    | Success _ -> failwith "Expected parser error."
