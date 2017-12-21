@@ -2,31 +2,56 @@
 
 module AutomatonPrinter =
 
-    //open System
-    //open GlobMatcher
+    open System
+    open System.Collections.Generic
+    open GlobMatcher
+    open Automaton
 
-    //let private prefixDigitHead id = if (Char.IsDigit(id, 0)) then "_" + id else id
+    type Transition = {Start: Id; End: Id; Accepts: Word option}
 
-    //let private escape c = 
-    //    match c with
-    //    | '\\' -> "\\\\"
-    //    | '"' -> "\\\""
-    //    | c -> string c
+    let private prefixDigitHead id = 
+        let headIsDigit = Char.IsDigit(id, 0)
+        let allAreDigits = id |> Seq.forall Char.IsDigit
+        if headIsDigit && not allAreDigits then "_" + id else id
 
-    //let private printState (State (UniqueId id)) = prefixDigitHead id
+    let private escape c = 
+        match c with
+        | '\\' -> "\\\\"
+        | '"' -> "\\\""
+        | c -> string c
 
-    //let private printWord w =
-    //    match w with
-    //    | Word c -> escape c
-    //    | Range (min, max) -> sprintf "%c-%c" min max
-    //    | Any -> "*"
-    //    | Epsilon -> ""
+    let private printStateId (Id id) = prefixDigitHead id
 
-    //let private printTransition {Start = s; End = e; Accepts = w} =
-    //    sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printWord w)
+    let private printWord w =
+        match w with
+        | Some (Word c)           -> escape c
+        | Some (Range (min, max)) -> sprintf "%s-%s" (escape min) (escape max)
+        | Some (Any)              -> "*"
+        | None                    -> ""
 
-    //let toDot {Transitions = transitions} =        
-    //    let transitions' = transitions |> List.map printTransition |> String.concat ";"
-    //    "digraph G {" + transitions' + "}"
+    let private printTransition {Start = s; End = e; Accepts = w} =
+        sprintf "%s->%s[label=\"%s\"]" (printStateId s) (printStateId e) (printWord w)
 
-    let toDot s = sprintf "%A" s
+    let toDot start = 
+        let visited = HashSet<Id> ()
+
+        let rec collectTransitions state =
+            let alreadyDone = visited.Contains (getId state)
+            match alreadyDone, state with
+            | true, _ -> []
+            | _, Final -> 
+                getId state |> visited.Add |> ignore
+                []
+            | _, State (id, w, next) ->
+                visited.Add id |> ignore
+                let t = {Start = id; End = getId next; Accepts = Some w}
+                t::collectTransitions next
+            | _, Split (id, left, right) -> 
+                visited.Add id |> ignore
+                let t1 = {Start = id; End = getId left; Accepts = None}
+                let t2 = {Start = id; End = getId right; Accepts = None}
+                t1 :: t2 :: collectTransitions left @ collectTransitions right
+
+        collectTransitions start
+        |> List.map printTransition |> String.concat "; "
+        |> sprintf "digraph G {%s}"
