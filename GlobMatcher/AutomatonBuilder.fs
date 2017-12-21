@@ -2,7 +2,7 @@
 
 module AutomatonBuilder =
 
-    type Prototype = Prototype of (State -> State) | MetaPrototype of (State -> Prototype)
+    type Prototype = Prototype of (State -> State)
 
     let zero = Prototype (fun next -> next)
 
@@ -34,22 +34,17 @@ module AutomatonBuilder =
             and s0 = Split (newId (), s1, next)
             s0)
 
-    let makeZeroOrMoreChar c =
+    let makeRange (minChar, maxChar) =
         Prototype (fun next ->
-            let rec s0 = Split (newId (), s1, next)
-            and s1 = State (newId (), Word c, s0)
-            s0)
+            let minChar' = min minChar maxChar
+            let maxChar' = max minChar maxChar
+            let s = State (newId (), Range (minChar', maxChar'), next)
+            s) 
 
     let makeZeroOrMore (Prototype finishInner) =
         Prototype (fun next ->
             let rec s0 = Split (newId (), s1, next)
             and s1 = finishInner s0
-            s0)
-
-    let makeOneOrMoreChar c =
-        Prototype (fun next ->
-            let rec s0 = State (newId (), Word c, s1)
-            and s1 = Split (newId (), s0, next)
             s0)
 
     let makeOneOrMore (Prototype finishInner) =
@@ -58,27 +53,8 @@ module AutomatonBuilder =
             and s0 = finishInner s1
             s0)
 
-    let makeZeroOrOneChar c =
-        Prototype (fun next ->
-            let s1 = State (newId (), Word c, next)
-            let s0 = Split (newId (), s1, next)
-            s0)
-
     let makeZeroOrOne (Prototype finishInner) =
         Prototype (fun next ->
             let s1 = finishInner next
             let s0 = Split (newId (), s1, next)
-            s0)
-
-    let makeZeroOrOne' () =
-        MetaPrototype (fun inner ->
-            Prototype (fun next ->
-                let s0 = Split (newId (), inner, next)
-                s0))
-
-    let makeRange (minChar, maxChar) =
-        Prototype (fun next ->
-            let minChar' = min minChar maxChar
-            let maxChar' = max minChar maxChar
-            let s = State (newId (), Range (minChar', maxChar'), next)
-            s)    
+            s0)   
