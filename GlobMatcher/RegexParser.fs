@@ -7,36 +7,33 @@ module RegexParser =
 
     let private postfixOps = "*+?"
 
-    let private noop = ' '
+    let private noop = System.Char.MinValue
 
     let private metaChars = "()" + postfixOps
 
-    let private applyPostfix (proto, op) = 
+    let private applyPostfix (operand, op) = 
         match op with
-        | '*' -> makeZeroOrMore proto
-        | '+' -> makeOneOrMore proto
-        | '?' -> makeZeroOrOne proto
-        | _   -> proto
-
-    let private matchExpr, matchExpr' = createParserForwardedToRef<Prototype, unit> ()
+        | '*' -> makeZeroOrMore operand
+        | '+' -> makeOneOrMore operand
+        | '?' -> makeZeroOrOne operand
+        | _   -> operand
 
     let private charMatch = noneOf metaChars
 
-    let private postfixOp = anyOf postfixOps <|>% noop
+    let private postfixOperand, postfixOperand' = createParserForwardedToRef<Prototype, unit> ()
 
-    let private postfixedMatchExpr = matchExpr .>>. postfixOp |>> applyPostfix
+    let private postfixOperator = anyOf postfixOps <|>% noop
 
-    let private submatchExpr = skipChar '(' >>. many postfixedMatchExpr .>> skipChar ')'
+    let private matchExpr = postfixOperand .>>. postfixOperator |>> applyPostfix
 
-    matchExpr' :=
-        choice [
-            submatchExpr |>> List.foldBack' combine zero
-            charMatch    |>> makeChar
-        ]
+    let private submatchExpr = skipChar '(' >>. many matchExpr .>> skipChar ')'
+
+    postfixOperand' := choice [
+        submatchExpr |>> List.foldBack' combine zero
+        charMatch    |>> makeChar]
 
     let private parser = 
-        many postfixedMatchExpr 
-        .>> eof 
+        many matchExpr .>> eof 
         |>> List.foldBack' AutomatonBuilder.run empty
 
     let parsePattern succeed fail pattern =
