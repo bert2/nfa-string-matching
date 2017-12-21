@@ -43,7 +43,7 @@ Up until commit 7333567 an NFA implementation was used that lend itself to easy 
 
 Commit 91ed910 introduced another refactoring that fixed a major bug. Due to this bug incorrect automatons were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
 
-### Reproducing the Performance Tests
+### Reproducing the Performance Results
 
 Each test run of the implementation was executed and recorded the following way:
 
@@ -71,10 +71,21 @@ The test run for C#'s regex class can be executed like this:
 
 * ~~Finish `README.md`~~
 * ~~Render performance graph y axis starting at 0~~ *(unable to produce a nicely looking rendering)*
-* ~~Cache DFA states~~ *(no noticeable performance increase for now)*
 * ~~Use FParsec instead of diy'ed parser combinator~~
+* Cache DFA states
 * Fix AutomatonPrinter to reflect breaking changes of the Automaton module
+* Implement regular expression syntax
+  * CLI to regular expression matcher
+  * ~~Kleene star~~
+  * ~~Kleene plus~~
+  * ~~Optional match~~
+  * ~~Submatch expressions between '(' and ')'~~
+  * Alternations
+  * Metacharacter '.'
+  * Character classes
+  * Counted repetitions
+* FSCheck regular expression matcher
+  * Use random string generator that has a regex as input
 * Clean up messy performance test code
   * Split into modules
-  * Use parser combinator to read CSV file
-* Implement regular expression syntax
+  * Use parser combinator to read CSV file, just because they are fun
