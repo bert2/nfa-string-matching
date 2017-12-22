@@ -1,4 +1,6 @@
-﻿namespace GlobMatcher
+﻿module Util
+
+let sortTuple (l, r) = (min l r, max l r)
 
 module List =
 

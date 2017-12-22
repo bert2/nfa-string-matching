@@ -4,6 +4,7 @@ module RegexParser =
 
     open FParsec
     open AutomatonBuilder
+    open Util
 
     let private postfixOps = "*+?"
 
@@ -20,7 +21,7 @@ module RegexParser =
 
     let private charMatch = noneOf metaChars
 
-    let private postfixOperand, postfixOperand' = createParserForwardedToRef<Prototype, unit> ()
+    let private postfixOperand, postfixOperand' = createParserForwardedToRef ()
 
     let private postfixOperator = anyOf postfixOps <|>% noop
 

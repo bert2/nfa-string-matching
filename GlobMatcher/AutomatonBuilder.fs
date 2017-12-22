@@ -1,16 +1,16 @@
 ﻿namespace GlobMatcher
 
 module AutomatonBuilder =
+    
+    open Util
 
-    type Prototype = Prototype of (State -> State)
+    type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
-    let zero = Prototype (fun next -> next)
+    let run (ProtoAutomaton finish) next = finish next
 
-    let run (Prototype finish) next = finish next
+    let combine proto1 proto2 = ProtoAutomaton (run proto2 >> run proto1)
 
-    let combine (Prototype finish) (Prototype finish') =
-        Prototype (fun next ->
-            finish <| finish' next)
+    let zero = ProtoAutomaton id
 
     let private newId = 
         let mutable i = -1
@@ -18,43 +18,30 @@ module AutomatonBuilder =
             i <- i + 1
             i  |> string |> Id
 
+    let private accepting word toState = State (newId (), word, toState)
+
     let empty = Final
 
-    let makeChar c =
-        Prototype (fun next -> 
-            State (newId (), Word c, next))
+    let makeChar = ProtoAutomaton << accepting << Word
 
-    let makeAnyChar () =
-        Prototype (fun next ->
-            State (newId (), Any, next))
+    let makeAnyChar () = ProtoAutomaton << accepting <| Any
 
-    let makeAnyString () =
-        Prototype (fun next ->
-            let rec s1 = State (newId (), Any, s0)
-            and s0 = Split (newId (), s1, next)
-            s0)
+    let makeRange = ProtoAutomaton << accepting << Range << sortTuple
 
-    let makeRange (minChar, maxChar) =
-        Prototype (fun next ->
-            let minChar' = min minChar maxChar
-            let maxChar' = max minChar maxChar
-            let s = State (newId (), Range (minChar', maxChar'), next)
-            s) 
-
-    let makeZeroOrMore (Prototype finishInner) =
-        Prototype (fun next ->
+    let makeZeroOrMore inner =
+        ProtoAutomaton (fun next ->
             let rec s0 = Split (newId (), s1, next)
-            and s1 = finishInner s0
+            and s1 = run inner s0
             s0)
 
-    let makeOneOrMore (Prototype finishInner) =
-        Prototype (fun next ->
+    let makeOneOrMore inner =
+        ProtoAutomaton (fun next ->
             let rec s1 = Split (newId (), s0, next)
-            and s0 = finishInner s1
+            and s0 = run inner s1
             s0)
 
-    let makeZeroOrOne (Prototype finishInner) =
-        Prototype (fun next ->
-            let s1 = finishInner next
+    let makeZeroOrOne inner =
+        ProtoAutomaton (fun next ->
+            let s1 = run inner next
             let s0 = Split (newId (), s1, next)
             s0)   

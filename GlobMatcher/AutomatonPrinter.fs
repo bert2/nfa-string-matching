@@ -11,8 +11,8 @@ module AutomatonPrinter =
 
     let private prefixDigitHead id = 
         let headIsDigit = Char.IsDigit(id, 0)
-        let allAreDigits = id |> Seq.forall Char.IsDigit
-        if headIsDigit && not allAreDigits then "_" + id else id
+        let onlyDigits = id |> Seq.forall Char.IsDigit
+        if headIsDigit && not onlyDigits then "_" + id else id
 
     let private escape c = 
         match c with

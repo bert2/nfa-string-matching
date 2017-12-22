@@ -4,6 +4,7 @@ module GlobParser =
 
     open FParsec
     open AutomatonBuilder
+    open Util
     
     let private anyCharWildcard = skipChar '?'
 
@@ -28,7 +29,7 @@ module GlobParser =
     let private token =
         choice [
             anyCharWildcard   |>> makeAnyChar
-            anyStringWildcard |>> makeAnyString
+            anyStringWildcard |>> makeAnyChar |>> makeZeroOrMore
             charRange         |>> makeRange
             escapedChar       |>> makeChar
             anyChar           |>> makeChar
