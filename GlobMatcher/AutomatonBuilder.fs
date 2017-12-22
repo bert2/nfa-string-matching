@@ -7,7 +7,7 @@ module AutomatonBuilder =
     // Automatons are build by chaining one or more proto automatons together backwards. A proto
     // automaton is a (partial) automaton missing the transition to an exit state. When a proto 
     // automaton is completed by feeding it its exit state, its initial state is returned which 
-    // in turn could be the exit of another proto automaton.
+    // in turn could be the exit state of another proto automaton.
 
     type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
