@@ -6,9 +6,9 @@ module AutomatonBuilder =
 
     type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
-    let run (ProtoAutomaton finish) next = finish next
+    let complete (ProtoAutomaton completeWith) exit = completeWith exit
 
-    let combine proto1 proto2 = ProtoAutomaton (run proto2 >> run proto1)
+    let combine first second = ProtoAutomaton (complete first << complete second)
 
     let zero = ProtoAutomaton id
 
@@ -18,9 +18,16 @@ module AutomatonBuilder =
             i <- i + 1
             i  |> string |> Id
 
-    let private accepting word toState = State (newId (), word, toState)
+    let private accepting word exit = State (newId (), word, exit)
 
-    let empty = Final
+    let private loop body exit =
+        let rec split = Split (newId (), enter, exit)
+        and enter = complete body split
+        split
+
+    let private option inner skip =
+        let s1 = complete inner skip
+        Split (newId (), s1, skip)
 
     let makeChar = ProtoAutomaton << accepting << Word
 
@@ -28,20 +35,8 @@ module AutomatonBuilder =
 
     let makeRange = ProtoAutomaton << accepting << Range << sortTuple
 
-    let makeZeroOrMore inner =
-        ProtoAutomaton (fun next ->
-            let rec s0 = Split (newId (), s1, next)
-            and s1 = run inner s0
-            s0)
+    let makeZeroOrMore = ProtoAutomaton << loop
 
-    let makeOneOrMore inner =
-        ProtoAutomaton (fun next ->
-            let rec s1 = Split (newId (), s0, next)
-            and s0 = run inner s1
-            s0)
+    let makeOneOrMore inner = ProtoAutomaton (complete inner << loop inner)
 
-    let makeZeroOrOne inner =
-        ProtoAutomaton (fun next ->
-            let s1 = run inner next
-            let s0 = Split (newId (), s1, next)
-            s0)   
+    let makeZeroOrOne = ProtoAutomaton << option   

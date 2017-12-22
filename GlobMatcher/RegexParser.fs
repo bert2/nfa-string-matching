@@ -35,7 +35,7 @@ module RegexParser =
 
     let private parser = 
         many matchExpr .>> eof 
-        |>> List.foldBack' AutomatonBuilder.run empty
+        |>> List.foldBack' AutomatonBuilder.complete Final
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern
