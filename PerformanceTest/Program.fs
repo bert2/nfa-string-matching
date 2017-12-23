@@ -23,8 +23,8 @@ let toFloats = List.map float >> List.toArray
 
 let delay f x = fun () -> f x
 
-let makeTestData wildcard word length =
-    let text = String.replicate length word
+let makeTestData wildcard letter length =
+    let text = String.replicate length letter
     let pattern = (String.replicate length wildcard) + text
     pattern, text
 

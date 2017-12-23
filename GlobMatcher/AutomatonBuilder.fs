@@ -23,7 +23,7 @@ module AutomatonBuilder =
 
     let newId = count >> string >> Id
 
-    let private accept word exit = State (newId (), word, exit)
+    let private accept letter exit = State (newId (), letter, exit)
 
     let private loop body exit =
         let rec branch = Split (newId (), enter, exit)
@@ -36,7 +36,7 @@ module AutomatonBuilder =
 
     // Implementation of control structures
 
-    let makeChar = ProtoAutomaton << accept << Word
+    let makeChar = ProtoAutomaton << accept << Letter
 
     let makeAnyChar () = ProtoAutomaton << accept <| Any
 

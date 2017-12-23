@@ -7,7 +7,7 @@ module AutomatonPrinter =
     open GlobMatcher
     open Automaton
 
-    type Transition = {Start: Id; End: Id; Accepts: Word option}
+    type Transition = {Start: Id; End: Id; Accepts: Letter option}
 
     let private prefixDigitHead id = 
         let headIsDigit = Char.IsDigit(id, 0)
@@ -22,15 +22,15 @@ module AutomatonPrinter =
 
     let private printStateId (Id id) = prefixDigitHead id
 
-    let private printWord w =
-        match w with
-        | Some (Word c)           -> escape c
+    let private printLetter l =
+        match l with
+        | Some (Letter c)           -> escape c
         | Some (Range (min, max)) -> sprintf "%s-%s" (escape min) (escape max)
         | Some (Any)              -> "*"
         | None                    -> ""
 
-    let private printTransition {Start = s; End = e; Accepts = w} =
-        sprintf "%s->%s[label=\"%s\"]" (printStateId s) (printStateId e) (printWord w)
+    let private printTransition {Start = s; End = e; Accepts = l} =
+        sprintf "%s->%s[label=\"%s\"]" (printStateId s) (printStateId e) (printLetter l)
 
     let toDot start = 
         let visited = HashSet<Id> ()
@@ -42,9 +42,9 @@ module AutomatonPrinter =
             | _, Final -> 
                 getId state |> visited.Add |> ignore
                 []
-            | _, State (id, w, next) ->
+            | _, State (id, l, next) ->
                 visited.Add id |> ignore
-                let t = {Start = id; End = getId next; Accepts = Some w}
+                let t = {Start = id; End = getId next; Accepts = Some l}
                 t::collectTransitions next
             | _, Split (id, left, right) -> 
                 visited.Add id |> ignore
