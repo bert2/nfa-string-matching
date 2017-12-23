@@ -6,20 +6,20 @@ module AutomatonBuilder =
 
     // Automatons are build by chaining one or more proto automatons together backwards. A proto
     // automaton is a (partial) automaton missing the transition to an exit state. When a proto 
-    // automaton is completed by feeding it its exit state, its initial state is returned which 
-    // in turn could be the exit state of another proto automaton.
+    // automaton is completed by fixing its exit state, its initial state is returned which in 
+    // turn can be used as the exit state of another proto automaton.
 
     type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
     let complete (ProtoAutomaton completeWith) exit = completeWith exit
 
-    // Make ProtoAutomaton a monoid w/o associativity (whatever that is called... a quasigroup?).
+    // ProtoAutomaton is monoidal and can be folded over backwards.
 
-    let combine first second = ProtoAutomaton (complete first << complete second)
+    let connect first second = ProtoAutomaton (complete first << complete second)
 
     let zero = ProtoAutomaton id
 
-    // Generalizations
+    // Helpers & generalizations
 
     let newId = count >> string >> Id
 
