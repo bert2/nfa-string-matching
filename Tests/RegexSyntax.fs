@@ -2,8 +2,6 @@
 
 open Xunit
 open GlobMatcher
-open Result
-open Xunit
 
 let private assertMatch pattern text isMatch =
     let a = RegexParser.toAutomaton' pattern
@@ -88,5 +86,5 @@ let ``can combine automatons`` p t r = assertMatch p t r
 [<InlineData("(*)")>]
 let ``invalid pattern gives parser error`` pattern =
     match RegexParser.toAutomaton pattern with
-    | Failure _ -> ()
-    | Success _ -> failwith "Expected parser error."
+    | Result.Failure _ -> ()
+    | Result.Success _ -> failwith "Expected parser error."

@@ -3,32 +3,28 @@
 open Xunit
 open GlobMatcher
 
+let private assertMatch pattern text isMatch =
+    let a = GlobParser.toAutomaton' pattern
+    let result = Automaton.run a text
+    Assert.Equal (isMatch, result)
+
 [<Theory>]
 [<InlineData("a", "a", true)>]
 [<InlineData("a", "b", false)>]
 [<InlineData("a", "", false)>]
-let ``matches literal characters`` pattern text isMatch =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``matches literal characters`` p t r = assertMatch p t r
 
 
 [<Theory>]
 [<InlineData("?", "a", true)>]
 [<InlineData("?", "", false)>]
-let ``matches the any character wildcard "?"`` pattern text isMatch =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``matches the any character wildcard "?"`` p t r = assertMatch p t r
 
 [<Theory>]
-[<InlineData("*", "a")>]
-[<InlineData("*", "abc")>]
-[<InlineData("*", "")>]
-let ``matches then any string wildcard "*"`` pattern text =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.True result
+[<InlineData("*", "a", true)>]
+[<InlineData("*", "abc", true)>]
+[<InlineData("*", "", true)>]
+let ``matches then any string wildcard "*"`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData(@"[b-d]", "a", false)>]
@@ -36,21 +32,15 @@ let ``matches then any string wildcard "*"`` pattern text =
 [<InlineData(@"[b-d]", "c", true)>]
 [<InlineData(@"[b-d]", "d", true)>]
 [<InlineData(@"[b-d]", "e", false)>]
-let ``matches character ranges`` pattern text isMatch =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``matches character ranges`` p t r = assertMatch p t r
 
 [<Theory>]
-[<InlineData(@"\?", "?")>]
-[<InlineData(@"\*", "*")>]
-[<InlineData(@"\\", @"\")>]
-[<InlineData(@"\[", "[")>]
-[<InlineData(@"\]", "]")>]
-let ``escape character allows matching meta characters literally`` pattern text =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.True result
+[<InlineData(@"\?", "?", true)>]
+[<InlineData(@"\*", "*", true)>]
+[<InlineData(@"\\", @"\", true)>]
+[<InlineData(@"\[", "[", true)>]
+[<InlineData(@"\]", "]", true)>]
+let ``escape character allows matching meta characters literally`` p t r = assertMatch p t r
 
 
 [<Theory>]
@@ -60,7 +50,15 @@ let ``escape character allows matching meta characters literally`` pattern text 
 [<InlineData(@"*b", "c", false)>]
 [<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh", true)>]
 [<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh", true)>]
-let ``can combine automatons`` pattern text isMatch =
-    let M = GlobParser.toAutomaton' pattern
-    let result = Automaton.run M text
-    Assert.Equal (isMatch, result)
+let ``can combine automatons``  p t r = assertMatch p t r
+
+[<Theory>]
+[<InlineData(@"\")>]
+[<InlineData(@"\a")>]
+[<InlineData("[")>]
+[<InlineData("[a]")>]
+[<InlineData("[a-]")>]
+let ``invalid pattern gives parser error`` pattern =
+    match GlobParser.toAutomaton pattern with
+    | Result.Failure _ -> ()
+    | Result.Success _ -> failwith "Expected parser error."
