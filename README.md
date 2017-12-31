@@ -87,6 +87,7 @@ The test run for C#'s regex class can be executed like this:
   * Counted repetitions
 * FSCheck regular expression matcher
   * Use random string generator that has a regex as input
+* Try NFA State type that is a (Letter -> State list)
 * Clean up messy performance test code
   * Split into modules
   * Use parser combinator to read CSV file, just because they are fun
