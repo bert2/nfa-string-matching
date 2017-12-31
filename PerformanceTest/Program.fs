@@ -171,11 +171,19 @@ let render chartF = parseCsv resultStore |> toChart |> chartF
 let doPerformanceTest f minPatternLen maxPatternLen repetitions getResultId =
     let result = measurePerformance f minPatternLen maxPatternLen repetitions getResultId
     ensureCreated resultStore
+    
     let oldResults = parseCsv resultStore
-    let allResults = oldResults@[result]
+    let resultExists = oldResults |> contains result
+
+    let newResult = 
+        if resultExists 
+        then {result with Commit = result.Commit + " (new)"} 
+        else result
+
+    let allResults = oldResults @ [newResult]
     let chart = toChart allResults
 
-    if oldResults |> contains result 
+    if resultExists 
     then print result chart
     else save result chart
 
