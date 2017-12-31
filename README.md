@@ -1,6 +1,6 @@
 # Glob Pattern Matching using Nondeterministic Finite Automata
 
-This is an implementation of a nondeterministic finite automaton (NFA) that matches text input against a [glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)). The implementation is based on [Ken Thompson's NFA construction from regular expressions](https://en.wikipedia.org/wiki/Glob_(programming)) and inspired by Russ Cox' article [Regular Expression Matching Can Be Simple And Fast](https://swtch.com/~rsc/regexp/regexp1.html).
+This is an implementation of a nondeterministic finite automaton (NFA) that matches text input against a [glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)). The implementation is based on [Ken Thompson's NFA construction from regular expressions](https://en.wikipedia.org/wiki/Thompson%27s_construction) and inspired by Russ Cox' article [Regular Expression Matching Can Be Simple And Fast](https://swtch.com/~rsc/regexp/regexp1.html).
 
 Given a glob pattern and an input text the implementation first parses the pattern to construct the corresponding NFA and then feeds the input text into the NFA. Whether the input matches the pattern is printed to the output and reflected with the exit code of the application.
 
