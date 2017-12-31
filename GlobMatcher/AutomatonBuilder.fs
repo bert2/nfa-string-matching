@@ -4,10 +4,11 @@ module AutomatonBuilder =
     
     open Util
 
-    // Automatons are build by chaining one or more proto automatons together backwards. A proto
-    // automaton is a (partial) automaton missing the transition to an exit state. When a proto 
-    // automaton is completed by fixing its exit state, its initial state is returned which in 
-    // turn can be used as the exit state of another proto automaton.
+    // Automatons are build by chaining proto automatons together backwards. A proto
+    // automaton is a (partial) automaton missing the transition to an exit state. 
+    // When a proto automaton is completed by fixing its exit state, its initial 
+    // state is returned which in turn can be used as the exit state of another 
+    // proto automaton.
 
     type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
