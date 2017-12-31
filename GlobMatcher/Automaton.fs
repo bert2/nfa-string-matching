@@ -1,8 +1,16 @@
 ﻿namespace GlobMatcher
 
 type Id = Id of string
-type Letter = Letter of char | Range of char * char | Any
-type State = State of Id * Letter * State | Split of Id * State * State | Final
+
+type Letter = 
+    | Letter of char
+    | Range of char * char 
+    | Any
+
+type State = 
+    | State of Id * Letter * State
+    | Split of Id * State * State
+    | Final
 
 module Automaton =
 
@@ -14,13 +22,13 @@ module Automaton =
     
     let rec private step letter state =
         match letter, state with
-        | l     , Split (_, left, right)            -> (step l left)@(step l right)
-        | _     , State (_, Any, next)              -> [next]
+        | l       , Split (_, left, right)            -> (step l left)@(step l right)
+        | _       , State (_, Any, next)              -> [next]
         | Letter c, State (_, Letter c', next)          
-            when c = c'                             -> [next]
+            when c = c'                               -> [next]
         | Letter c, State (_, Range (min, max), next) 
-            when min <= c && c <= max               -> [next]
-        | _                                         -> []
+            when min <= c && c <= max                 -> [next]
+        | _                                           -> []
 
     let rec private expandEpsilons state =
         match state with
