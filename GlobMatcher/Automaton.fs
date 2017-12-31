@@ -21,12 +21,12 @@ module Automaton =
         | Final            -> Id "Final"
     
     let rec private step letter state =
-        match letter, state with
-        | l       , Split (_, left, right)            -> (step l left)@(step l right)
-        | _       , State (_, Any, next)              -> [next]
-        | Letter c, State (_, Letter c', next)          
-            when c = c'                               -> [next]
-        | Letter c, State (_, Range (min, max), next) 
+        match state, letter with
+        | Split (_, left, right)           , l        -> (step l left)@(step l right)
+        | State (_, Any, next)             , _        -> [next]
+        | State (_, Letter c', next)       , Letter c          
+            when c' = c                               -> [next]
+        | State (_, Range (min, max), next), Letter c 
             when min <= c && c <= max                 -> [next]
         | _                                           -> []
 
