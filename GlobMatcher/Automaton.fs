@@ -27,14 +27,13 @@ module Automaton =
         | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
         | state -> [state]
     
-    let private consume letter =
-       List.collect (step letter) >> List.collect expandEpsilons >> List.distinctBy getId
+    let private consume currents letter =
+       currents 
+       |> List.collect (step letter) 
+       |> List.collect expandEpsilons
+       |> List.distinctBy getId
 
-    let run start text =
-        let rec run' (text:string) current =
-            if text.Length = 0 then
-                current |> List.contains Final
-            else
-                let next = consume (Letter text.[0]) current
-                run' text.[1..] next
-        expandEpsilons start |> run' text
+    let run start = 
+        Seq.map Letter 
+        >> Seq.fold consume (expandEpsilons start)
+        >> List.contains Final
