@@ -12,17 +12,17 @@ module AutomatonBuilder =
 
     type ProtoAutomaton = ProtoAutomaton of (State -> State)
 
-    let complete (ProtoAutomaton completeWith) exit = completeWith exit
+    let complete (ProtoAutomaton fix) exit = fix exit
 
     // ProtoAutomaton is monoidal and can be folded over backwards.
 
-    let connect first second = ProtoAutomaton (complete first << complete second)
+    let connect first second = ProtoAutomaton (complete second >> complete first)
 
     let zero = ProtoAutomaton id
 
     // Helpers & generalizations
 
-    let newId = count >> string >> Id
+    let newId = globalCount >> string >> Id
 
     let private accept letter exit = State (newId (), letter, exit)
 

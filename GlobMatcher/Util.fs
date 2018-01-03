@@ -2,7 +2,7 @@
 
 let sortTuple (l, r) = (min l r, max l r)
 
-let count = 
+let globalCount = 
     let mutable i = -1
     fun () ->
         i <- i + 1
