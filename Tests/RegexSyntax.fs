@@ -1,7 +1,7 @@
 ﻿module RegexSyntax
 
 open Xunit
-open GlobMatcher
+open StringMatcher
 
 let private assertMatch pattern text isMatch =
     let a = RegexParser.toAutomaton' pattern

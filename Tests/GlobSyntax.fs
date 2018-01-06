@@ -1,7 +1,7 @@
 ﻿module GlobSyntax
 
 open Xunit
-open GlobMatcher
+open StringMatcher
 
 let private assertMatch pattern text isMatch =
     let a = GlobParser.toAutomaton' pattern

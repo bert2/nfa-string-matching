@@ -1,10 +1,10 @@
-﻿namespace GlobMatcher
+﻿namespace StringMatcher
 
 module AutomatonPrinter =
 
     open System
     open System.Collections.Generic
-    open GlobMatcher
+    open StringMatcher
     open Automaton
 
     type Transition = {Start: Id; End: Id; Accepts: Letter option}

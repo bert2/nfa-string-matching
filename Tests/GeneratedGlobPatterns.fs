@@ -2,7 +2,7 @@
 
 open Xunit
 open FsCheck
-open GlobMatcher
+open StringMatcher
 
 type TestData = {Pattern: string; Text: string}
 

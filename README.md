@@ -8,20 +8,20 @@ Given a glob pattern and an input text the implementation first parses the patte
 
 | Pattern                      | Description                                                 |
 |:----------------------------:| ----------------------------------------------------------- |
-| `a`, `b`, …                  | Simple match looking for the specified character            |
+| `a`, `b`, ???                  | Simple match looking for the specified character            |
 | `?`                          | Matches any character                                       |
 | `*`                          | Matches any string of characters including the empty string |
-| `[a-f]`, `[0-9]`, …          | Matches any character within the specified range            |
+| `[a-f]`, `[0-9]`, ???          | Matches any character within the specified range            |
 | `\*`, `\?`, `\\`, `\[`, `\]` | Escape character for matching meta characters literally     |
 
 ## Build
 
-Build `GlobMatcher.sln` using Visual Studio 2017.
+Build `nfa-string-matching.sln` using Visual Studio 2017.
 
 ## Usage
 
 ```
-> .\Globmatcher\bin\Release\GlobMatcher.exe "my * pattern" "my glob pattern"
+> .\StringMatcher\bin\Release\StringMatcher.exe "my * pattern" "my glob pattern"
 Match: true
 ```
 

@@ -1,4 +1,4 @@
-﻿namespace GlobMatcher
+﻿namespace StringMatcher
 
 module RegexParser = 
 

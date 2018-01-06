@@ -1,4 +1,4 @@
-﻿namespace GlobMatcher
+﻿namespace StringMatcher
 
 type Id = Id of string
 

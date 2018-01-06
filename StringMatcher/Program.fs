@@ -1,6 +1,6 @@
 ﻿open System
 open System.Diagnostics
-open GlobMatcher
+open StringMatcher
 open Result
 
 let printGravizoLink automaton =
@@ -29,8 +29,8 @@ let getInputs (args:string[]) =
     | 3 when args.[2] = "--printGraph" || args.[2] = "-p" -> 
         (args.[0], args.[1], true)
     | _ -> 
-        printfn "Usage: GlobMatcher.exe <pattern string> <test string> [--printGraph or -p]"
-        printfn "       GlobMatcher.exe [--interactive or -i]"
+        printfn "Usage: StringMatcher.exe <pattern string> <test string> [--printGraph or -p]"
+        printfn "       StringMatcher.exe [--interactive or -i]"
         gatherUserInputs ()
 
 [<EntryPoint>]

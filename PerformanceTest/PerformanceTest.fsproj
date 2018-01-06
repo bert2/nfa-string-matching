@@ -86,7 +86,7 @@
     <Reference Include="System.Windows.Forms.DataVisualization" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GlobMatcher\StringMatcher.fsproj">
+    <ProjectReference Include="..\StringMatcher\StringMatcher.fsproj">
       <Name>StringMatcher</Name>
       <Project>{626019c8-fc92-4e62-9d76-c2277f536d99}</Project>
       <Private>True</Private>

@@ -3,7 +3,7 @@ open System.Diagnostics
 open System.IO
 open FSharp.Charting
 open MathNet.Numerics
-open GlobMatcher
+open StringMatcher
 open Proc
 open System.Text.RegularExpressions
 
