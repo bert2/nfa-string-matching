@@ -60,8 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
-      <HintPath>..\packages\FsCheck.2.10.4\lib\net452\FsCheck.dll</HintPath>
+      <HintPath>..\packages\FsCheck.2.10.6\lib\net452\FsCheck.dll</HintPath>
     </Reference>
+    <Reference Include="FsCheck" />
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
@@ -168,8 +169,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GlobMatcher\GlobMatcher.fsproj">
-      <Name>GlobMatcher</Name>
+    <ProjectReference Include="..\GlobMatcher\StringMatcher.fsproj">
+      <Name>StringMatcher</Name>
       <Project>{626019c8-fc92-4e62-9d76-c2277f536d99}</Project>
       <Private>True</Private>
     </ProjectReference>
