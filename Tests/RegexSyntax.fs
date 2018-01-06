@@ -74,7 +74,7 @@ let ``submatch expressions can be nested`` p t r = assertMatch p t r
 [<InlineData("ab*c+d?e", "acccde", true)>]
 [<InlineData("ab*c+d?e", "abbbccce", true)>]
 [<InlineData("ab*c+d?e", "accce", true)>]
-let ``can combine automatons`` p t r = assertMatch p t r
+let ``can combine automata`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("*")>]

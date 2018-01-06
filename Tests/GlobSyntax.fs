@@ -50,7 +50,7 @@ let ``escape character allows matching meta characters literally`` p t r = asser
 [<InlineData(@"*b", "c", false)>]
 [<InlineData(@"a*c?[0-9]\?*?h", "abcd1?efgh", true)>]
 [<InlineData(@"a*c?[0-9]\?*?h", "acd1?gh", true)>]
-let ``can combine automatons``  p t r = assertMatch p t r
+let ``can combine automata``  p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData(@"\")>]

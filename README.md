@@ -39,9 +39,9 @@ For comparison the results when matching the input text against the analogous re
 
 ### A Note on the Performance Results
 
-Up until commit 7333567 an NFA implementation was used that lend itself to easy concatination of automatons, but required more cycles to execute them. Later commits used a refactored version with opposite properties, i.e. faster execution at the expense of a more complex construction.
+Up until commit 7333567 an NFA implementation was used that lend itself to easy concatination of automata, but required more cycles to execute them. Later commits used a refactored version with opposite properties, i.e. faster execution at the expense of a more complex construction.
 
-Commit 91ed910 introduced another refactoring that also fixed a major bug. Due to this bug incorrect automatons were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
+Commit 91ed910 introduced another refactoring that also fixed a major bug. Due to this bug incorrect automata were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
 
 ### Reproducing the Performance Results
 
