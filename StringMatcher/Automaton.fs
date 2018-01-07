@@ -30,7 +30,8 @@ module Automaton =
             when min <= c && c <= max                 -> [next]
         | _                                           -> []
 
-    let rec private expandEpsilons state =
+    let private expandEpsilons state =
+        // tail-recursive helper function
         let rec expand toExpand expanded =
             match toExpand with
             | []           -> expanded
