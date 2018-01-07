@@ -19,21 +19,21 @@ module Automaton =
         | State (id, _, _) -> id
         | Split (id, _, _) -> id
         | Final            -> Id "Final"
-
-    let private step letter state = Util.tail2 [state] [] (fun s ->
-        match s, letter with
-        | Split (_, l, r)                  , _        -> Some (l, r), None
-        | State (_, Any, next)             , _        -> None, Some next
+    
+    let rec private step letter state =
+        match state, letter with
+        | Split (_, left, right)           , l        -> (step l left)@(step l right)
+        | State (_, Any, next)             , _        -> [next]
         | State (_, Letter c', next)       , Letter c          
-            when c' = c                               -> None, Some next
+            when c' = c                               -> [next]
         | State (_, Range (min, max), next), Letter c 
-            when min <= c && c <= max                 -> None, Some next
-        | _                                           -> None, None)
+            when min <= c && c <= max                 -> [next]
+        | _                                           -> []
 
-    let private expandEpsilons state = Util.tail2 [state] [] (fun s ->
-        match s with
-        | Split (_, l, r) -> Some (l, r), None
-        | _               -> None, Some s)
+    let rec private expandEpsilons state =
+        match state with
+        | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
+        | state -> [state]
     
     let private consume currents letter =
        currents 

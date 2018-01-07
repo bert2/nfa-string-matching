@@ -10,15 +10,6 @@ let globalCount =
 
 let charsToStr = List.toArray >> System.String >> string
 
-let rec tail2 todos dones f =
-    match todos with
-    | []        -> dones
-    | x::todos' ->
-        match f x with
-        | Some (newTodo1, newTodo2), _ -> tail2 (newTodo1::newTodo2::todos') dones f
-        | _, Some newDone              -> tail2 todos' (newDone::dones) f
-        | _, _                         -> tail2 todos' dones f
-
 module Map =
 
     let fromPairs pairs = 
