@@ -20,25 +20,31 @@ module Automaton =
         | Split (id, _, _) -> id
         | Final            -> Id "Final"
     
-    let rec private step letter state =
-        match state, letter with
-        | Split (_, left, right)           , l        -> (step l left)@(step l right)
-        | State (_, Any, next)             , _        -> [next]
-        | State (_, Letter c', next)       , Letter c          
-            when c' = c                               -> [next]
-        | State (_, Range (min, max), next), Letter c 
-            when min <= c && c <= max                 -> [next]
-        | _                                           -> []
+    let private step letter state =
+        // tail-recursive helper function
+        let rec step' todo stepped =
+            match todo with
+            | []         -> stepped
+            | s::todo' ->
+                match s, letter with
+                | Split (_, l, r)                  , _        -> step' (l::r::todo') stepped
+                | State (_, Any, next)             , _        -> step' todo' (next::stepped)
+                | State (_, Letter c', next)       , Letter c          
+                    when c' = c                               -> step' todo' (next::stepped)
+                | State (_, Range (min, max), next), Letter c 
+                    when min <= c && c <= max                 -> step' todo' (next::stepped)
+                | _                                           -> step' todo' stepped
+        step' [state] []
 
     let private expandEpsilons state =
         // tail-recursive helper function
-        let rec expand toExpand expanded =
-            match toExpand with
+        let rec expand todo expanded =
+            match todo with
             | []           -> expanded
-            | s::toExpand' ->
+            | s::todo' ->
                 match s with
-                | Split (_, l, r) -> expand (l::r::toExpand') expanded
-                | _               -> expand toExpand' (s::expanded)
+                | Split (_, l, r) -> expand (l::r::todo') expanded
+                | _               -> expand todo' (s::expanded)
         expand [state] []
     
     let private consume currents letter =
