@@ -43,6 +43,8 @@ Up until commit 7333567 an NFA implementation was used that lend itself to easy 
 
 Commit 91ed910 introduced another refactoring that also fixed a major bug. Due to this bug incorrect automata were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
 
+A tail-recursive version of `expandEpsilons` was implemented in commit b4023bd and yielded minor performance improvements. However, making `step` tail-recursive as well and generalizing the concept of tail-recursivying a doubly recursive function (535b1f7) actually decreased performance a little bit. Hence the change was reverted.
+
 ### Reproducing the Performance Results
 
 Each test run of the implementation was executed and recorded the following way:
