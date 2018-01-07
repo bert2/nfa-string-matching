@@ -36,7 +36,7 @@ module Automaton =
             | []    -> acc
             | x::xs ->
                 match x with
-                | Split (_, l, r) -> expand (l::r::xs) (x::acc)
+                | Split (_, l, r) -> expand (l::r::xs) acc
                 | state           -> expand xs (state::acc)
         expand [state] []
     
