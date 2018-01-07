@@ -19,33 +19,21 @@ module Automaton =
         | State (id, _, _) -> id
         | Split (id, _, _) -> id
         | Final            -> Id "Final"
-    
-    let private step letter state =
-        // tail-recursive helper function
-        let rec step' todo stepped =
-            match todo with
-            | []         -> stepped
-            | s::todo' ->
-                match s, letter with
-                | Split (_, l, r)                  , _        -> step' (l::r::todo') stepped
-                | State (_, Any, next)             , _        -> step' todo' (next::stepped)
-                | State (_, Letter c', next)       , Letter c          
-                    when c' = c                               -> step' todo' (next::stepped)
-                | State (_, Range (min, max), next), Letter c 
-                    when min <= c && c <= max                 -> step' todo' (next::stepped)
-                | _                                           -> step' todo' stepped
-        step' [state] []
 
-    let private expandEpsilons state =
-        // tail-recursive helper function
-        let rec expand todo expanded =
-            match todo with
-            | []           -> expanded
-            | s::todo' ->
-                match s with
-                | Split (_, l, r) -> expand (l::r::todo') expanded
-                | _               -> expand todo' (s::expanded)
-        expand [state] []
+    let private step letter state = Util.tail2 [state] [] (fun s ->
+        match s, letter with
+        | Split (_, l, r)                  , _        -> Some (l, r), None
+        | State (_, Any, next)             , _        -> None, Some next
+        | State (_, Letter c', next)       , Letter c          
+            when c' = c                               -> None, Some next
+        | State (_, Range (min, max), next), Letter c 
+            when min <= c && c <= max                 -> None, Some next
+        | _                                           -> None, None)
+
+    let private expandEpsilons state = Util.tail2 [state] [] (fun s ->
+        match s with
+        | Split (_, l, r) -> Some (l, r), None
+        | _               -> None, Some s)
     
     let private consume currents letter =
        currents 
