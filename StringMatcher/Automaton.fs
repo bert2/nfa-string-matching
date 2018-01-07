@@ -31,9 +31,14 @@ module Automaton =
         | _                                           -> []
 
     let rec private expandEpsilons state =
-        match state with
-        | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
-        | state -> [state]
+        let rec expand states acc =
+            match states with
+            | []    -> acc
+            | x::xs ->
+                match x with
+                | Split (_, l, r) -> expand (l::r::xs) (x::acc)
+                | state           -> expand xs (state::acc)
+        expand [state] []
     
     let private consume currents letter =
        currents 
