@@ -12,8 +12,6 @@ module ArgsParser =
 
     let private isWordChar c = Char.IsLetterOrDigit c || c = '-' || c = '_'
 
-    // atomics
-
     let private letter = satisfy Char.IsLetter
 
     let private wordchar = satisfy isWordChar
@@ -48,11 +46,9 @@ module ArgsParser =
 
     // argument list
 
-    let private argsep = spaces1 <|> eof
+    let private arg = argkey .>> spaces1 .>>. argvalue .>> spaces
 
-    let private arg = argkey .>> spaces1 .>>. argvalue .>> argsep
-
-    let private switch = argkey .>> argsep |>> fun k -> (k, "")
+    let private switch = argkey .>> spaces |>> fun k -> (k, "")
 
     let private parser = many (attempt arg <|> switch) .>> eof
 
