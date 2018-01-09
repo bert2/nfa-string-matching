@@ -1,14 +1,38 @@
 ﻿open System
 open System.Diagnostics
+open Argu
 open StringMatcher
 open Result
+
+type Args =
+    | [<AltCommandLine("-p")>][<Unique>][<Mandatory>]
+        Pattern of string
+    | [<AltCommandLine("-t")>][<Unique>][<Mandatory>] 
+        Text of string
+    | [<AltCommandLine("-g")>] 
+        PrintGraph
+    | [<AltCommandLine("-i")>] 
+        Interactive
+    interface IArgParserTemplate with
+        member this.Usage: string = 
+            match this with
+            | Pattern _   -> "the pattern describing the strings to match"
+            | Text _      -> "the string to be matched"
+            | PrintGraph  -> "prints the graph of the generated NFA as a link to https://gravizo.com/."
+            | Interactive -> "starts interactive mode"
+
+let argsParser = ArgumentParser.Create<Args> ()
+
+let exit exitcode =
+    if Debugger.IsAttached then Console.ReadKey(true) |> ignore
+    exitcode
 
 let printGravizoLink automaton =
     let dotscript = AutomatonPrinter.toDot automaton
     printfn "%s%s" "https://g.gravizo.com/svg?" (Uri.EscapeDataString dotscript)
 
 let gatherUserInputs () =
-    printf "Glob pattern: "
+    printf "Pattern: "
     let pattern = Console.ReadLine()
     printf "Text: "
     let text = Console.ReadLine()
@@ -17,31 +41,27 @@ let gatherUserInputs () =
     printfn ""
     (pattern, text, print)
 
-let exit code =
-    if Debugger.IsAttached then Console.ReadKey(true) |> ignore
-    code
-
-let getInputs (args:string[]) =
-    match args.Length with
-    | 1 when args.[0] = "--interactive" || args.[0] = "-i" -> 
+let getInputs (args:ParseResults<Args>) =
+    if args.Contains <@ Interactive @> then
         gatherUserInputs ()
-    | 2 -> (args.[0], args.[1], false)
-    | 3 when args.[2] = "--printGraph" || args.[2] = "-p" -> 
-        (args.[0], args.[1], true)
-    | _ -> 
-        printfn "Usage: StringMatcher.exe <pattern string> <test string> [--printGraph or -p]"
-        printfn "       StringMatcher.exe [--interactive or -i]"
-        gatherUserInputs ()
+    else
+        (args.GetResult <@ Pattern @>, args.GetResult <@ Text @>, args.Contains <@ PrintGraph @>)
 
 [<EntryPoint>]
 let main argv = 
-    let (pattern, text, printGraph) = getInputs argv
-    match GlobParser.toAutomaton pattern with
-    | Failure msg -> 
-        printfn "Incorrect pattern:\n%s" msg
-        exit 2
-    | Success a ->
-        if printGraph then printGravizoLink a
-        let result = Automaton.run a text
-        printfn "Match: %A" result
-        exit (if result then 0 else 1)
+    let args = argsParser.Parse (argv, raiseOnUsage = false)
+    if args.IsUsageRequested then 
+        argsParser.PrintUsage () |> printfn "%s"
+        2
+    else
+        let (pattern, text, printGraph) = getInputs args
+        match GlobParser.toAutomaton pattern with
+        | Failure msg -> 
+            printfn "Incorrect pattern:\n%s" msg
+            3
+        | Success a ->
+            if printGraph then printGravizoLink a
+            let result = Automaton.run a text
+            printfn "Match: %A" result
+            if result then 0 else 1
+    |> exit
