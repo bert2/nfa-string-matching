@@ -14,8 +14,7 @@ type State =
 
 module Automaton =
 
-    let getId state =
-        match state with
+    let getId = function
         | State (id, _, _) -> id
         | Split (id, _, _) -> id
         | Final            -> Id "Final"
@@ -30,8 +29,7 @@ module Automaton =
             when min <= c && c <= max                 -> [next]
         | _                                           -> []
 
-    let rec private expandEpsilons state =
-        match state with
+    let rec private expandEpsilons = function
         | Split (_, left, right) -> expandEpsilons left @ expandEpsilons right
         | state -> [state]
     
