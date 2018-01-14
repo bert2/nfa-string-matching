@@ -22,7 +22,7 @@ module Automaton =
     
     let rec private step letter state =
         match state, letter with
-        | Split (_, left, right)           , l        -> (step l left)@(step l right)
+        | Split (_, left, right)           , l        -> step l left @ step l right
         | State (_, Any, next)             , _        -> [next]
         | State (_, Letter c', next)       , Letter c          
             when c' = c                               -> [next]
@@ -32,7 +32,7 @@ module Automaton =
 
     let rec private expandEpsilons state =
         match state with
-        | Split (_, left, right) -> (expandEpsilons left)@(expandEpsilons right)
+        | Split (_, left, right) -> expandEpsilons left @ expandEpsilons right
         | state -> [state]
     
     let private consume currents letter =
