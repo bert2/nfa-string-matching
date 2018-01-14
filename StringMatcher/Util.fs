@@ -20,5 +20,8 @@ module List =
 
     let inline foldBack' folder state list = List.foldBack folder list state
 
-    let inline front list = list |> List.truncate (list.Length - 1)
-
+    let rec front = function
+        | []       -> []
+        | _::[]    -> []
+        | x::_::[] -> [x]
+        | x::xs'   -> x :: front xs'
