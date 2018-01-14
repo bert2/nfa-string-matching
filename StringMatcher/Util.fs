@@ -19,9 +19,3 @@ module Map =
 module List =
 
     let inline foldBack' folder state list = List.foldBack folder list state
-
-    let rec front = function
-        | []       -> []
-        | _::[]    -> []
-        | x::_::[] -> [x]
-        | x::xs'   -> x :: front xs'
