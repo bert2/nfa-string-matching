@@ -18,7 +18,7 @@ module AutomatonBuilder =
 
     let connect first second = ProtoAutomaton (complete second >> complete first)
 
-    let zero = ProtoAutomaton id
+    let empty = ProtoAutomaton id
 
     // Helpers & generalizations
 
@@ -46,6 +46,6 @@ module AutomatonBuilder =
 
     let makeOneOrMore inner = ProtoAutomaton (complete inner << loop inner)
 
-    let makeZeroOrOne = ProtoAutomaton << branch zero
+    let makeZeroOrOne = ProtoAutomaton << branch empty
 
     let makeAlternation (left, right) = ProtoAutomaton <| branch left right

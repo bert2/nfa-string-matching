@@ -33,7 +33,7 @@ module RegexParser =
     let private submatchExpr = skipChar '(' >>. many matchExpr .>> skipChar ')'
 
     operand' := choice [
-        submatchExpr |>> List.foldBack' connect zero
+        submatchExpr |>> List.foldBack' connect empty
         charMatch    |>> makeChar]
 
     let private parser = 
