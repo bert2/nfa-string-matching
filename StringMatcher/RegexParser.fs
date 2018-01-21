@@ -8,28 +8,31 @@ module RegexParser =
 
     let private postfixOps = "*+?"
 
-    let private noop = System.Char.MinValue
+    let private infixOps = "|"
 
-    let private metaChars = "()" + postfixOps
+    let private metaChars = "()" + postfixOps + infixOps
 
-    let private applyPostfix (operand, op) = 
+    let private applyOp (lhs, (op, rhs)) = 
         match op with
-        | '*' -> makeZeroOrMore operand
-        | '+' -> makeOneOrMore operand
-        | '?' -> makeZeroOrOne operand
-        | _   -> operand
+        | None     -> lhs
+        | Some '*' -> makeZeroOrMore lhs
+        | Some '+' -> makeOneOrMore lhs
+        | Some '?' -> makeZeroOrOne lhs
+        | Some '|' -> makeAlternation (lhs, Option.get rhs)
+        | Some c   -> failwithf "unknown operator '%c'" c
 
     let private charMatch = noneOf metaChars
 
-    let private postfixOperand, postfixOperand' = createParserForwardedToRef ()
+    let private operand, operand' = createParserForwardedToRef ()
 
-    let private postfixOperator = anyOf postfixOps <|>% noop
-
-    let private matchExpr = postfixOperand .>>. postfixOperator |>> applyPostfix
+    let postfixOp = anyOf postfixOps |>> fun op -> Some op, None
+    let infixOp = anyOf infixOps .>>. operand |>> fun (op,rhs) -> Some op, Some rhs
+    let noOp = preturn (None, None)
+    let private matchExpr = operand .>>. (postfixOp <|> infixOp <|> noOp) |>> applyOp
 
     let private submatchExpr = skipChar '(' >>. many matchExpr .>> skipChar ')'
 
-    postfixOperand' := choice [
+    operand' := choice [
         submatchExpr |>> List.foldBack' connect zero
         charMatch    |>> makeChar]
 

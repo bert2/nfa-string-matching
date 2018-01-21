@@ -47,4 +47,6 @@ module AutomatonBuilder =
 
     let makeOneOrMore inner = ProtoAutomaton (complete inner << loop inner)
 
-    let makeZeroOrOne = ProtoAutomaton << option   
+    let makeZeroOrOne = ProtoAutomaton << option
+    
+    let makeAlternation (left, right) = ProtoAutomaton (fun join -> Split (newId (), complete left join, complete right join))

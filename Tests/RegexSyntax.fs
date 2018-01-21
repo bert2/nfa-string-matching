@@ -67,6 +67,14 @@ let ``option matches zero or one submatch expression`` p t r = assertMatch p t r
 let ``submatch expressions can be nested`` p t r = assertMatch p t r
 
 [<Theory>]
+[<InlineData("a|b", "a", true)>]
+[<InlineData("a|b", "b", true)>]
+[<InlineData("a|b", "ab", false)>]
+[<InlineData("a|b", "c", false)>]
+[<InlineData("a|b", "", false)>]
+let ``Alternation matches either left or right`` p t r = assertMatch p t r
+
+[<Theory>]
 [<InlineData("a*b", "b", true)>]
 [<InlineData("a*b", "ab", true)>]
 [<InlineData("a*b", "aab", true)>]
