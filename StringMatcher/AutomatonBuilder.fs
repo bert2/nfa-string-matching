@@ -31,9 +31,8 @@ module AutomatonBuilder =
         and enter = complete body branch
         branch
 
-    let private option inner skip =
-        let take = complete inner skip
-        Split (newId (), take, skip)
+    let private branch left right join = 
+        Split (newId (), complete left join, complete right join)
 
     // Implementation of control structures
 
@@ -47,6 +46,6 @@ module AutomatonBuilder =
 
     let makeOneOrMore inner = ProtoAutomaton (complete inner << loop inner)
 
-    let makeZeroOrOne = ProtoAutomaton << option
-    
-    let makeAlternation (left, right) = ProtoAutomaton (fun join -> Split (newId (), complete left join, complete right join))
+    let makeZeroOrOne = ProtoAutomaton << branch zero
+
+    let makeAlternation (left, right) = ProtoAutomaton <| branch left right
