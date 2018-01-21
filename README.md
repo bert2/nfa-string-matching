@@ -77,7 +77,7 @@ The test run for C#'s regex class can be executed like this:
 * ~~Fix AutomatonPrinter to reflect breaking changes of the Automaton module~~
 * ~~Cache DFA state~~ *(doesn't seem to be worth the overhead)*
 * Implement regular expression syntax
-  * CLI to regular expression matcher
+  * ~~CLI to regular expression matcher~~
   * ~~Kleene star~~
   * ~~Kleene plus~~
   * ~~Optional match~~
