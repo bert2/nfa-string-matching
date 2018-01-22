@@ -88,7 +88,7 @@ The test run for C#'s regex class can be executed like this:
   * Character classes
   * Counted repetitions
   * ...
-* Use FParsec's OperatorPrecendenceParser for regex syntax
+* ~~Use FParsec's OperatorPrecendenceParser for regex syntax~~
 * FSCheck regular expression matcher
   * Use random string generator that has a regex as input
 * Try NFA `State` type that is a `Letter -> State list`
