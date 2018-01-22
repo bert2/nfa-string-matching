@@ -4,30 +4,31 @@ module RegexParser =
 
     open FParsec
     open AutomatonBuilder
+    open RegexOperatorsBuilder
     open Util
 
     let private postfixOps = "*+?"
     let private infixOps = "|"
     let private metaChars = "()" + postfixOps + infixOps
+
     let private charMatch = noneOf metaChars
 
-    let private stop = nextCharSatisfies (fun _ -> true) <|> eof
-    let private oop = OperatorPrecedenceParser<_, _, _>()
-    oop.AddOperator (PostfixOperator ("*", stop, 1, true, makeZeroOrMore))
-    oop.AddOperator (PostfixOperator ("+", stop, 1, true, makeOneOrMore))
-    oop.AddOperator (PostfixOperator ("?", stop, 1, true, makeZeroOrOne))
-    oop.AddOperator (InfixOperator   ("|", stop, 2, Associativity.Left, makeAlternation))
-    
-    let private expr = oop.ExpressionParser
+    let private regexTerm matchExpr =
+        let matchExprGroup = skipChar '(' >>. many matchExpr .>> skipChar ')'
+        choice [
+            matchExprGroup |>> List.foldBack' connect empty
+            charMatch      |>> makeChar]
 
-    let private submatchExpr = skipChar '(' >>. many expr .>> skipChar ')'
-
-    oop.TermParser <- choice [
-        submatchExpr |>> List.foldBack' connect empty
-        charMatch    |>> makeChar]
+    let private matchExpr = 
+        makeOperatorPrecedenceParser ()
+        |> withPostfix "*" 1 makeZeroOrMore
+        |> withPostfix "+" 1 makeOneOrMore
+        |> withPostfix "?" 1 makeZeroOrOne
+        |> withInfix   "|" 2 makeAlternation
+        |> withTermParser regexTerm
 
     let private parser = 
-        many expr .>> eof 
+        many matchExpr .>> eof 
         |>> List.foldBack' AutomatonBuilder.complete Final
 
     let parsePattern succeed fail pattern =

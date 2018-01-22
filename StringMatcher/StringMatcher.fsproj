@@ -62,6 +62,7 @@
     <Compile Include="AutomatonPrinter.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="GlobParser.fs" />
+    <Compile Include="RegexOperatorsBuilder.fs" />
     <Compile Include="RegexParser.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
