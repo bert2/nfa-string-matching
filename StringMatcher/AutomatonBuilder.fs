@@ -31,10 +31,10 @@ module AutomatonBuilder =
     let private branch left right join = Split (newId (), complete left join, complete right join)
 
     // Implementation of control structures
-    let makeChar               = ProtoAutomaton << accept << Letter
-    let makeAnyChar ()         = ProtoAutomaton << accept <| Any
-    let makeRange              = ProtoAutomaton << accept << Range << sortTuple
-    let makeZeroOrMore         = ProtoAutomaton << loop
-    let makeOneOrMore inner    = ProtoAutomaton (complete inner << loop inner)
-    let makeZeroOrOne          = ProtoAutomaton << branch empty
-    let makeAlternation (l, r) = ProtoAutomaton <| branch l r
+    let makeChar            = ProtoAutomaton << accept << Letter
+    let makeAnyChar ()      = ProtoAutomaton << accept <| Any
+    let makeRange           = ProtoAutomaton << accept << Range << sortTuple
+    let makeZeroOrMore      = ProtoAutomaton << loop
+    let makeOneOrMore inner = ProtoAutomaton (complete inner << loop inner)
+    let makeZeroOrOne       = ProtoAutomaton << branch empty
+    let makeAlternation l r = ProtoAutomaton <| branch l r

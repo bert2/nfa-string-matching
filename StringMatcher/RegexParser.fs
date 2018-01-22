@@ -7,37 +7,27 @@ module RegexParser =
     open Util
 
     let private postfixOps = "*+?"
-
     let private infixOps = "|"
-
     let private metaChars = "()" + postfixOps + infixOps
-
-    let private applyOp (lhs, (op, rhs)) = 
-        match op with
-        | None     -> lhs
-        | Some '*' -> makeZeroOrMore lhs
-        | Some '+' -> makeOneOrMore lhs
-        | Some '?' -> makeZeroOrOne lhs
-        | Some '|' -> makeAlternation (lhs, Option.get rhs)
-        | Some c   -> failwithf "unknown operator '%c'" c
-
     let private charMatch = noneOf metaChars
 
-    let private operand, operand' = createParserForwardedToRef ()
+    let private stop = nextCharSatisfies (fun _ -> true) <|> eof
+    let private oop = OperatorPrecedenceParser<_, _, _>()
+    oop.AddOperator (PostfixOperator ("*", stop, 1, true, makeZeroOrMore))
+    oop.AddOperator (PostfixOperator ("+", stop, 1, true, makeOneOrMore))
+    oop.AddOperator (PostfixOperator ("?", stop, 1, true, makeZeroOrOne))
+    oop.AddOperator (InfixOperator   ("|", stop, 2, Associativity.Left, makeAlternation))
+    
+    let private expr = oop.ExpressionParser
 
-    let postfixOp = anyOf postfixOps |>> fun op -> Some op, None
-    let infixOp = anyOf infixOps .>>. operand |>> fun (op,rhs) -> Some op, Some rhs
-    let noOp = preturn (None, None)
-    let private matchExpr = operand .>>. (postfixOp <|> infixOp <|> noOp) |>> applyOp
+    let private submatchExpr = skipChar '(' >>. many expr .>> skipChar ')'
 
-    let private submatchExpr = skipChar '(' >>. many matchExpr .>> skipChar ')'
-
-    operand' := choice [
+    oop.TermParser <- choice [
         submatchExpr |>> List.foldBack' connect empty
         charMatch    |>> makeChar]
 
     let private parser = 
-        many matchExpr .>> eof 
+        many expr .>> eof 
         |>> List.foldBack' AutomatonBuilder.complete Final
 
     let parsePattern succeed fail pattern =
