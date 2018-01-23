@@ -6,17 +6,13 @@ open StringMatcher
 
 type TestData = {Pattern: string; Text: string}
 
-let stringFrom alphabet =
-    alphabet |> Gen.elements |> Gen.listOf |> Gen.map (List.map string >> String.concat "")
-
-let singleCharStringFrom alphabet =
-    alphabet |> Gen.elements |> Gen.map string
+let stringFrom = Gen.elements >> Gen.listOf >> Gen.map (List.map string >> String.concat "")
 
 let charToGen c =
     match c with
     | '*' -> stringFrom ['a'..'f']
-    | '?' -> singleCharStringFrom ['a'..'f']
-    | c -> singleCharStringFrom [c]
+    | '?' -> ['a'..'f'] |> Gen.elements |> Gen.map string
+    | c   -> c |> string |> Gen.constant
 
 let matchingTextAndPatternCombo = gen {
     let! pattern = stringFrom (['a'..'c']@['?'; '*'])
