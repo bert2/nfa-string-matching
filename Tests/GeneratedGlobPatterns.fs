@@ -8,8 +8,7 @@ type TestData = {Pattern: string; Text: string}
 
 let stringFrom = Gen.elements >> Gen.listOf >> Gen.map (List.map string >> String.concat "")
 
-let charToGen c =
-    match c with
+let charToGen = function
     | '*' -> stringFrom ['a'..'f']
     | '?' -> ['a'..'f'] |> Gen.elements |> Gen.map string
     | c   -> c |> string |> Gen.constant
@@ -22,10 +21,8 @@ let matchingTextAndPatternCombo = gen {
 
 [<Fact>]
 let ``matching pattern and text are accepted`` () = 
-    Check.One ({Config.VerboseThrowOnFailure with MaxTest = 1000}, Prop.forAll 
+    Check.One ({Config.VerboseThrowOnFailure with MaxTest = 3000}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
-            let p = pattern
-            let M = GlobParser.toAutomaton' p
-            let result = Automaton.run M text
-            result))
+            let a = GlobParser.toAutomaton' pattern
+            Automaton.run a text))
