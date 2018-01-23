@@ -19,7 +19,8 @@ module AutomatonBuilder =
 
     // Helpers & generalizations
 
-    let newId = globalCount >> string >> Id
+    let mutable private       newId =  makeGlobalCounter () >> string >> Id
+    let resetIdGenerator () = newId <- makeGlobalCounter () >> string >> Id
 
     let private accept letter exit = State (newId (), letter, exit)
 
