@@ -4,6 +4,7 @@ module AutomatonPrinter =
 
     open System.Collections.Generic
     open StringMatcher
+    open Util
 
     type Transition = {Start: State; End: State; Accepts: Letter option}
 
@@ -19,15 +20,13 @@ module AutomatonPrinter =
         | None                    -> ""
 
     let private printState = 
-        let ids = Dictionary<State, int> ()
-        let mutable id = -1
-        fun state ->
-            match ids.TryGetValue state with
-            | true, id -> string id
-            | false, _ -> 
-                id <- id + 1
-                ids.Add (state, id)
-                string id
+        let nextId =
+            let mutable id = -1
+            fun () -> id <- id + 1; id
+        memoize (fun state -> 
+            match state with
+            | Final -> "F"
+            | _     -> nextId () |> string)
 
     let private printTransition {Start = s; End = e; Accepts = l} =
         sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printLetter l)
