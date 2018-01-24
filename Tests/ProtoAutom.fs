@@ -3,6 +3,31 @@
 open Xunit
 open FsCheck
 open StringMatcher
+open System.Collections.Generic
+
+let areEqualStates state state' =
+    let visited = HashSet<_> ()
+
+    let rec areEqualStates' state state' =
+        if visited.Contains (state, state') then 
+            true
+        else
+            match state, state' with
+            | Final, Final -> true
+            | State (l, next), State (l', next') when l = l' -> 
+                visited.Add (state, state') |> ignore
+                areEqualStates' next next'
+            | Split (l, r), Split (l', r') -> 
+                visited.Add (state, state') |> ignore
+                areEqualStates' l l' && areEqualStates' r r'
+            | _ -> false
+
+    areEqualStates' state state'
+
+let areEqual proto proto' =
+    let a = ProtoAutom.complete proto Final
+    let a' = ProtoAutom.complete proto' Final
+    areEqualStates a a'
 
 let rec protoAutom = 
     let leafProtos = [
@@ -24,14 +49,10 @@ let rec protoAutom =
 
     Gen.sized protoAutomaton'
 
-[<Fact(Skip = "implement custom equality breaking circular dependencies first")>]
+[<Fact>]
 let ``has identity element`` () =
     Check.VerboseThrowOnFailure (Prop.forAll 
         (Arb.fromGen protoAutom)
         (fun proto -> 
-            let proto' = ProtoAutom.connect proto ProtoAutom.empty
-
-            let a = ProtoAutom.complete proto Final
-            let a' = ProtoAutom.complete proto' Final
-
-            a'.ToString() = a.ToString()))
+            let proto' = proto |> ProtoAutom.connect ProtoAutom.empty
+            areEqual proto proto'))
