@@ -31,25 +31,26 @@ module AutomPrinter =
     let private printTransition {Start = s; End = e; Accepts = l} =
         sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printLetter l)
 
-    let rec private collectTransitions state =
+    let private collectTransitions state =
         let visited = HashSet<_> ()
 
-        let collectTransitions' state =
-            match state with
-            | Final -> []
-            | State (l, next) ->
-                visited.Add state |> ignore
-                let t = {Start = state; End = next; Accepts = Some l}
-                t::collectTransitions next
-            | Split (left, right) -> 
-                visited.Add state |> ignore
-                let t1 = {Start = state; End = left; Accepts = None}
-                let t2 = {Start = state; End = right; Accepts = None}
-                t1 :: t2 :: collectTransitions left @ collectTransitions right
+        let rec collectTransitions' state =
+            if visited.Contains state then 
+                [] 
+            else 
+                match state with
+                | Final -> []
+                | State (l, next) ->
+                    visited.Add state |> ignore
+                    let t = {Start = state; End = next; Accepts = Some l}
+                    t::collectTransitions' next
+                | Split (left, right) -> 
+                    visited.Add state |> ignore
+                    let t1 = {Start = state; End = left; Accepts = None}
+                    let t2 = {Start = state; End = right; Accepts = None}
+                    t1 :: t2 :: collectTransitions' left @ collectTransitions' right
 
-        if visited.Contains state 
-        then [] 
-        else collectTransitions' state
+        collectTransitions' state
 
     let toDot = 
         collectTransitions
