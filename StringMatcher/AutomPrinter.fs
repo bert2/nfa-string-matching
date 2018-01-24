@@ -32,7 +32,7 @@ module AutomPrinter =
         sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printLetter l)
 
     let rec private collectTransitions state =
-        let visited = HashSet<State> ()
+        let visited = HashSet<_> ()
 
         let collectTransitions' state =
             match state with
