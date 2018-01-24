@@ -36,9 +36,7 @@ module AutomPrinter =
 
         let collectTransitions' state =
             match state with
-            | Final -> 
-                visited.Add state |> ignore
-                []
+            | Final -> []
             | State (l, next) ->
                 visited.Add state |> ignore
                 let t = {Start = state; End = next; Accepts = Some l}
