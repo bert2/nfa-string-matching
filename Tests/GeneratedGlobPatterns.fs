@@ -25,4 +25,4 @@ let ``matching pattern and text are accepted`` () =
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let a = GlobParser.toAutomaton' pattern
-            Automaton.run a text))
+            Autom.run a text))

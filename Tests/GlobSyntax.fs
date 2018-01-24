@@ -5,7 +5,7 @@ open StringMatcher
 
 let private assertMatch pattern text isMatch =
     let a = GlobParser.toAutomaton' pattern
-    let result = Automaton.run a text
+    let result = Autom.run a text
     Assert.Equal (isMatch, result)
 
 [<Theory>]

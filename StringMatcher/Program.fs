@@ -31,7 +31,7 @@ let exit exitcode =
     exitcode
 
 let printGravizoLink automaton =
-    let dotscript = AutomatonPrinter.toDot automaton
+    let dotscript = AutomPrinter.toDot automaton
     printfn "%s%s" "https://g.gravizo.com/svg?" (Uri.EscapeDataString dotscript)
 
 let gatherUserInputs () =
@@ -78,7 +78,7 @@ let main argv =
             3
         | Success a ->
             if printGraph then printGravizoLink a
-            let result = Automaton.run a text
+            let result = Autom.run a text
             printfn "Match: %A" result
             if result then 0 else 1
     |> exit

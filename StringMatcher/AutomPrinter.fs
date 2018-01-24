@@ -1,6 +1,6 @@
 ﻿namespace StringMatcher
 
-module AutomatonPrinter =
+module AutomPrinter =
 
     open System.Collections.Generic
     open StringMatcher

@@ -57,9 +57,9 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Util.fs" />
-    <Compile Include="Automaton.fs" />
-    <Compile Include="AutomatonBuilder.fs" />
-    <Compile Include="AutomatonPrinter.fs" />
+    <Compile Include="Autom.fs" />
+    <Compile Include="ProtoAutom.fs" />
+    <Compile Include="AutomPrinter.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="GlobParser.fs" />
     <Compile Include="RegexOperatorsBuilder.fs" />

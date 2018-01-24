@@ -3,7 +3,6 @@
 module GlobParser = 
 
     open FParsec
-    open AutomatonBuilder
     open Util
     
     let private anyCharWildcard = skipChar '?'
@@ -28,14 +27,14 @@ module GlobParser =
 
     let private token =
         choice [
-            anyCharWildcard   |>> makeAnyChar
-            anyStringWildcard |>> makeAnyChar |>> makeZeroOrMore
-            charRange         |>> makeRange
-            escapedChar       |>> makeChar
-            anyChar           |>> makeChar
+            anyCharWildcard   |>> ProtoAutom.makeAnyChar
+            anyStringWildcard |>> ProtoAutom.makeAnyChar |>> ProtoAutom.makeZeroOrMore
+            charRange         |>> ProtoAutom.makeRange
+            escapedChar       |>> ProtoAutom.makeChar
+            anyChar           |>> ProtoAutom.makeChar
         ]
 
-    let private parser = many token |>> List.foldBack' AutomatonBuilder.complete Final
+    let private parser = many token |>> List.foldBack' ProtoAutom.complete Final
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern

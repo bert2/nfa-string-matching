@@ -11,7 +11,7 @@ type State =
     | Split of State * State
     | Final
 
-module Automaton =
+module Autom =
 
     let rec private step letter state =
         match state, letter with

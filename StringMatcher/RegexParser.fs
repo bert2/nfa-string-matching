@@ -3,7 +3,6 @@
 module RegexParser = 
 
     open FParsec
-    open AutomatonBuilder
     open RegexOperatorsBuilder
     open Util
 
@@ -16,20 +15,20 @@ module RegexParser =
     let private regexTerm matchExpr =
         let matchExprGroup = skipChar '(' >>. many matchExpr .>> skipChar ')'
         choice [
-            matchExprGroup |>> List.foldBack' connect empty
-            charMatch      |>> makeChar]
+            matchExprGroup |>> List.foldBack' ProtoAutom.connect ProtoAutom.empty
+            charMatch      |>> ProtoAutom.makeChar]
 
     let private matchExpr = 
         makeOperatorPrecedenceParser ()
-        |> withPostfix "*" 1 makeZeroOrMore
-        |> withPostfix "+" 1 makeOneOrMore
-        |> withPostfix "?" 1 makeZeroOrOne
-        |> withInfix   "|" 2 makeAlternation
+        |> withPostfix "*" 1 ProtoAutom.makeZeroOrMore
+        |> withPostfix "+" 1 ProtoAutom.makeOneOrMore
+        |> withPostfix "?" 1 ProtoAutom.makeZeroOrOne
+        |> withInfix   "|" 2 ProtoAutom.makeAlternation
         |> withTermParser regexTerm
 
     let private parser = 
         many matchExpr .>> eof 
-        |>> List.foldBack' AutomatonBuilder.complete Final
+        |>> List.foldBack' ProtoAutom.complete Final
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern

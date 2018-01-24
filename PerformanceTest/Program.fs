@@ -37,7 +37,7 @@ let measureNfaTimeForPatternLength n =
     printf "\b\b\b\b\b\b\b\b\b%03i (" n
     let pattern, text = makeTestData "*" "a" n
     let automaton = GlobParser.toAutomaton' pattern
-    measure (fun () -> Automaton.run automaton text)
+    measure (fun () -> Autom.run automaton text)
 
 let measureRegexTimeForPatternLength n = 
     printf "\b\b\b\b\b\b\b\b\b%03i (" n
@@ -68,7 +68,7 @@ let doWarmup n =
     printf "Warming up with pattern of length %i..." n
     let pattern, text = makeTestData "*" "a" n
     let automaton = GlobParser.toAutomaton' pattern
-    Automaton.run automaton text |> ignore
+    Autom.run automaton text |> ignore
     printfn "done"
 
 let getCommitHash () =
