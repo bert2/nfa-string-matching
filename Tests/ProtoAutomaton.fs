@@ -25,7 +25,7 @@ let rec protoAutomaton =
 
     Gen.sized protoAutomaton'
 
-[<Fact>]
+[<Fact(Skip = "implement custom equality breaking circular dependencies first")>]
 let ``has identity element`` () =
     Check.VerboseThrowOnFailure (Prop.forAll 
         (Arb.fromGen protoAutomaton)
