@@ -5,11 +5,11 @@ open StringMatcher
 open Result
 
 type Args =
-    | [<AltCommandLine("-g")>][<Unique>]
+    | [<AltCommandLine("-g"); Unique>]
         Glob of string
-    | [<AltCommandLine("-r")>][<Unique>]
+    | [<AltCommandLine("-r"); Unique>]
         Regex of string
-    | [<AltCommandLine("-t")>][<Unique>] 
+    | [<AltCommandLine("-t"); Unique>] 
         Text of string
     | [<AltCommandLine("-p")>] 
         PrintGraph
