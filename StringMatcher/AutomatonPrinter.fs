@@ -31,26 +31,30 @@ module AutomatonPrinter =
     let private printTransition {Start = s; End = e; Accepts = l} =
         sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printLetter l)
 
-    let toDot start = 
+    let rec private collectTransitions state =
         let visited = HashSet<State> ()
 
-        let rec collectTransitions state =
-            let alreadyDone = visited.Contains state
-            match alreadyDone, state with
-            | true, _ -> []
-            | _, Final -> 
+        let collectTransitions' state =
+            match state with
+            | Final -> 
                 visited.Add state |> ignore
                 []
-            | _, State (l, next) ->
+            | State (l, next) ->
                 visited.Add state |> ignore
                 let t = {Start = state; End = next; Accepts = Some l}
                 t::collectTransitions next
-            | _, Split (left, right) -> 
+            | Split (left, right) -> 
                 visited.Add state |> ignore
                 let t1 = {Start = state; End = left; Accepts = None}
                 let t2 = {Start = state; End = right; Accepts = None}
                 t1 :: t2 :: collectTransitions left @ collectTransitions right
 
-        collectTransitions start
-        |> List.map printTransition |> String.concat "; "
-        |> sprintf "digraph G {%s}"
+        if visited.Contains state 
+        then [] 
+        else collectTransitions' state
+
+    let toDot = 
+        collectTransitions
+        >> List.map printTransition 
+        >> String.concat "; "
+        >> sprintf "digraph G {%s}"
