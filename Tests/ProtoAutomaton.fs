@@ -32,10 +32,7 @@ let ``has identity element`` () =
         (fun proto -> 
             let proto' = connect proto empty
 
-            resetIdGenerator ()
             let a = complete proto Final
-
-            resetIdGenerator ()
             let a' = complete proto' Final
 
             a'.ToString() = a.ToString()))

@@ -2,54 +2,54 @@
 
 module AutomatonPrinter =
 
-    open System
     open System.Collections.Generic
     open StringMatcher
-    open Automaton
 
-    type Transition = {Start: Id; End: Id; Accepts: Letter option}
+    type Transition = {Start: State; End: State; Accepts: Letter option}
 
-    let private prefixDigitHead id = 
-        let headIsDigit = Char.IsDigit(id, 0)
-        let onlyDigits = id |> Seq.forall Char.IsDigit
-        if headIsDigit && not onlyDigits then "_" + id else id
-
-    let private escape c = 
-        match c with
+    let private escape = function
         | '\\' -> "\\\\"
         | '"' -> "\\\""
         | c -> string c
 
-    let private printStateId (Id id) = prefixDigitHead id
-
-    let private printLetter l =
-        match l with
-        | Some (Letter c)           -> escape c
+    let private printLetter = function
+        | Some (Letter c)         -> escape c
         | Some (Range (min, max)) -> sprintf "%s-%s" (escape min) (escape max)
         | Some (Any)              -> "*"
         | None                    -> ""
 
+    let private printState = 
+        let ids = Dictionary<State, int> ()
+        let mutable id = -1
+        fun state ->
+            match ids.TryGetValue state with
+            | true, id -> string id
+            | false, _ -> 
+                id <- id + 1
+                ids.Add (state, id)
+                string id
+
     let private printTransition {Start = s; End = e; Accepts = l} =
-        sprintf "%s->%s[label=\"%s\"]" (printStateId s) (printStateId e) (printLetter l)
+        sprintf "%s->%s[label=\"%s\"]" (printState s) (printState e) (printLetter l)
 
     let toDot start = 
-        let visited = HashSet<Id> ()
+        let visited = HashSet<State> ()
 
         let rec collectTransitions state =
-            let alreadyDone = visited.Contains (getId state)
+            let alreadyDone = visited.Contains state
             match alreadyDone, state with
             | true, _ -> []
             | _, Final -> 
-                getId state |> visited.Add |> ignore
+                visited.Add state |> ignore
                 []
-            | _, State (id, l, next) ->
-                visited.Add id |> ignore
-                let t = {Start = id; End = getId next; Accepts = Some l}
+            | _, State (l, next) ->
+                visited.Add state |> ignore
+                let t = {Start = state; End = next; Accepts = Some l}
                 t::collectTransitions next
-            | _, Split (id, left, right) -> 
-                visited.Add id |> ignore
-                let t1 = {Start = id; End = getId left; Accepts = None}
-                let t2 = {Start = id; End = getId right; Accepts = None}
+            | _, Split (left, right) -> 
+                visited.Add state |> ignore
+                let t1 = {Start = state; End = left; Accepts = None}
+                let t2 = {Start = state; End = right; Accepts = None}
                 t1 :: t2 :: collectTransitions left @ collectTransitions right
 
         collectTransitions start

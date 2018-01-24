@@ -17,19 +17,16 @@ module AutomatonBuilder =
     let connect first second = ProtoAutomaton (complete second >> complete first)
     let empty = ProtoAutomaton id
 
-    // Helpers & generalizations
+    // Generalizations
 
-    let mutable private       newId =  makeGlobalCounter () >> string >> Id
-    let resetIdGenerator () = newId <- makeGlobalCounter () >> string >> Id
-
-    let private accept letter exit = State (newId (), letter, exit)
+    let private accept letter exit = State (letter, exit)
 
     let private loop body exit =
-        let rec split = Split (newId (), enter, exit)
+        let rec split = Split (enter, exit)
         and enter = complete body split
         split
 
-    let private branch left right join = Split (newId (), complete left join, complete right join)
+    let private branch left right join = Split (complete left join, complete right join)
 
     // Implementation of control structures
     let makeChar            = ProtoAutomaton << accept << Letter
