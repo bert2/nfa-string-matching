@@ -3,7 +3,6 @@
 module GlobParser = 
 
     open FParsec
-    open Util
     
     let private anyCharWildcard = skipChar '?'
 
@@ -34,7 +33,7 @@ module GlobParser =
             anyChar           |>> ProtoAutom.makeChar
         ]
 
-    let private parser = many token |>> List.foldBack' ProtoAutom.complete Final
+    let private parser = many token .>> eof |>> ProtoAutom.completeAll Final
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern

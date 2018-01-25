@@ -4,7 +4,6 @@ module RegexParser =
 
     open FParsec
     open RegexOperatorsBuilder
-    open Util
 
     let private postfixOps = "*+?"
     let private infixOps = "|"
@@ -15,7 +14,7 @@ module RegexParser =
     let private regexTerm matchExpr =
         let matchExprGroup = skipChar '(' >>. many matchExpr .>> skipChar ')'
         choice [
-            matchExprGroup |>> List.foldBack' ProtoAutom.connect ProtoAutom.empty
+            matchExprGroup |>> ProtoAutom.concat
             charMatch      |>> ProtoAutom.makeChar]
 
     let private matchExpr = 
@@ -26,9 +25,7 @@ module RegexParser =
         |> withInfix   "|" 2 ProtoAutom.makeAlternation
         |> withTermParser regexTerm
 
-    let private parser = 
-        many matchExpr .>> eof 
-        |>> List.foldBack' ProtoAutom.complete Final
+    let private parser = many matchExpr .>> eof |>> ProtoAutom.completeAll Final
 
     let parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern

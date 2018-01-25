@@ -12,11 +12,13 @@ module ProtoAutom =
     type ProtoAutom = ProtoAutom of (State -> State)
     let complete (ProtoAutom fix) exit = fix exit
 
-    // The type 'ProtoAutom' together with function 'connect' is a monoid and 
-    // can be folded over *backwards* using the identity element 'empty'.
-    let connect first second = ProtoAutom (complete second >> complete first)
+    // Proto automata form a monoid under 'connect' with 'empty' as identity 
+    // element. Folding over them *backwards* assembles a combined automaton.
     let empty = ProtoAutom id
-
+    let connect first second = ProtoAutom (complete second >> complete first)
+    let concat = List.foldBack' connect empty
+    let completeAll exit = concat >> (fun p -> complete p exit)
+    
     // Generalizations
 
     let private accept letter exit = State (letter, exit)
