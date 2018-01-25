@@ -10,8 +10,8 @@ module AutomPrinter =
 
     let private escape = function
         | '\\' -> "\\\\"
-        | '"' -> "\\\""
-        | c -> string c
+        | '"'  -> "\\\""
+        | c    -> string c
 
     let private printLetter = function
         | Some (Letter c)         -> escape c
@@ -23,9 +23,8 @@ module AutomPrinter =
         let nextId =
             let mutable id = -1
             fun () -> id <- id + 1; id
-        memoize (fun state -> 
-            match state with
-            | Final -> "F"
+        memoize (function 
+            | Final -> "F" 
             | _     -> nextId () |> string)
 
     let private printTransition {Start = s; End = e; Accepts = l} =
