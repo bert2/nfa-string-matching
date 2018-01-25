@@ -56,7 +56,7 @@
     <Compile Include="RegexSyntax.fs" />
     <Compile Include="GlobSyntax.fs" />
     <Compile Include="GeneratedGlobPatterns.fs" />
-    <Compile Include="ProtoAutom.fs" />
+    <Compile Include="ProtoAutomMonoid.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

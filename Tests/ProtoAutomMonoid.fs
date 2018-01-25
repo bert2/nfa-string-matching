@@ -1,9 +1,10 @@
-﻿module ProtoAutom
+﻿module ProtoAutomMonoid
 
 open Xunit
 open FsCheck
 open StringMatcher
 open System.Collections.Generic
+open ProtoAutom
 
 let areEqualStates state state' =
     let visited = HashSet<_> ()
@@ -25,15 +26,15 @@ let areEqualStates state state' =
     areEqualStates' state state'
 
 let areEqual proto proto' =
-    let a = ProtoAutom.complete proto Final
-    let a' = ProtoAutom.complete proto' Final
+    let a = complete proto Final
+    let a' = complete proto' Final
     areEqualStates a a'
 
 let rec protoAutom = 
     let leafProtos = [
-        Gen.map ProtoAutom.makeChar    Arb.generate<char>
-        Gen.map ProtoAutom.makeAnyChar (Gen.constant ())
-        Gen.map ProtoAutom.makeRange   Arb.generate<char*char>]
+        Gen.map makeChar    Arb.generate<char>
+        Gen.map makeAnyChar (Gen.constant ())
+        Gen.map makeRange   Arb.generate<char*char>]
 
     let rec protoAutomaton' size =
         if size <= 0 then
@@ -41,18 +42,37 @@ let rec protoAutom =
         else
             let subProto = protoAutomaton' (size - 1)
             let nestedProtos = [
-                Gen.map  ProtoAutom.makeZeroOrMore  subProto
-                Gen.map  ProtoAutom.makeOneOrMore   subProto
-                Gen.map  ProtoAutom.makeZeroOrOne   subProto
-                Gen.map2 ProtoAutom.makeAlternation subProto subProto]
+                Gen.map  makeZeroOrMore  subProto
+                Gen.map  makeOneOrMore   subProto
+                Gen.map  makeZeroOrOne   subProto
+                Gen.map2 makeAlternation subProto subProto]
             Gen.oneof <| leafProtos @ nestedProtos
 
     Gen.sized protoAutomaton'
 
+let (===>) = connect
+
 [<Fact>]
-let ``has identity element`` () =
+let ``has left identity`` () =
     Check.VerboseThrowOnFailure (Prop.forAll 
         (Arb.fromGen protoAutom)
         (fun proto -> 
-            let proto' = proto |> ProtoAutom.connect ProtoAutom.empty
+            let proto' = empty ===> proto
+            areEqual proto proto'))
+
+[<Fact>]
+let ``has right identity`` () =
+    Check.VerboseThrowOnFailure (Prop.forAll 
+        (Arb.fromGen protoAutom)
+        (fun proto -> 
+            let proto' = proto ===> empty
+            areEqual proto proto'))
+
+[<Fact>]
+let ``associativity`` () =
+    Check.VerboseThrowOnFailure (Prop.forAll 
+        (Arb.fromGen <| Gen.three protoAutom)
+        (fun (p1, p2, p3) -> 
+            let proto  =  p1 ===> (p2  ===> p3)
+            let proto' = (p1 ===>  p2) ===> p3
             areEqual proto proto'))
