@@ -4,19 +4,18 @@ module ProtoAutom =
     
     open Util
 
-    // Automata are build by chaining proto automata together backwards. A proto
-    // automaton is a partial automaton missing the transition to an exit state. 
-    // When a proto automaton is completed by fixing its exit state, its initial 
-    // state is returned which in turn can be used as the exit state of another 
-    // proto automaton.
+    // Automata are build by chaining proto automata together. A proto automaton is a 
+    // partial automaton missing the transition to an exit state. When a proto automaton
+    // is completed by fixing its exit state, its initial state is returned which in turn
+    // can be used as the exit state of another proto automaton.
     type ProtoAutom = ProtoAutom of (State -> State)
     let complete (ProtoAutom fix) exit = fix exit
 
-    // Proto automata form a monoid under 'connect' with 'empty' as identity 
-    // element. Folding over them *backwards* assembles a combined automaton.
+    // Proto automata form a monoid under 'connect' with 'empty' as identity element. 
+    // Folding over them assembles a combined proto automaton.
     let empty = ProtoAutom id
     let connect first second = ProtoAutom (complete second >> complete first)
-    let concat = List.foldBack' connect empty
+    let concat = List.fold connect empty
     let completeAll exit = concat >> (fun p -> complete p exit)
     
     // Generalizations

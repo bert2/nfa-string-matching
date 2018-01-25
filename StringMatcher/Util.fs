@@ -13,7 +13,3 @@ let memoize f =
             let y = f x
             cache.Add (x, y)
             y
-
-module List =
-
-    let inline foldBack' folder state list = List.foldBack folder list state
