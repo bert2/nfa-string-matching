@@ -66,6 +66,10 @@ let ``option matches zero or one submatch expression`` p t r = assertMatch p t r
 [<InlineData("a(b(c(d)+)*e)f", "abcddcdddef", true)>]
 let ``submatch expressions can be nested`` p t r = assertMatch p t r
 
+[<Fact>]
+let ``submatch expressions can be empty`` () =
+    assertMatch "a()b" "ab" true
+
 [<Theory>]
 [<InlineData("a|b", "a", true)>]
 [<InlineData("a|b", "b", true)>]
@@ -73,6 +77,12 @@ let ``submatch expressions can be nested`` p t r = assertMatch p t r
 [<InlineData("a|b", "c", false)>]
 [<InlineData("a|b", "", false)>]
 let ``Alternation matches either left or right`` p t r = assertMatch p t r
+
+[<Theory>]
+[<InlineData("a|b|c", "a", true)>]
+[<InlineData("a|b|c", "b", true)>]
+[<InlineData("a|b|c", "c", true)>]
+let ``Alternations can be combined`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("a*b", "b", true)>]
@@ -92,6 +102,10 @@ let ``can combine automata`` p t r = assertMatch p t r
 [<InlineData("(")>]
 [<InlineData(")")>]
 [<InlineData("(*)")>]
+[<InlineData("|a")>]
+[<InlineData("a|")>]
+[<InlineData("|")>]
+[<InlineData("||")>]
 let ``invalid pattern gives parser error`` pattern =
     match RegexParser.toAutomaton pattern with
     | Result.Failure _ -> ()
