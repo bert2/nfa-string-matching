@@ -5,17 +5,8 @@ module RegexParser =
     open FParsec
     open RegexOperatorsBuilder
 
-    let private postfixOps = "*+?"
-    let private infixOps = "|"
-    let private metaChars = "()" + postfixOps + infixOps
-
-    let private charMatch = noneOf metaChars
-
-    let private regexTerm matchExpr =
-        let matchExprGroup = skipChar '(' >>. many matchExpr .>> skipChar ')'
-        choice [
-            matchExprGroup |>> ProtoAutom.concat
-            charMatch      |>> ProtoAutom.makeChar]
+    [<Literal>]
+    let private metaChars = "()*+?|"
 
     let private matchExpr = 
         makeOperatorPrecedenceParser ()
@@ -23,11 +14,16 @@ module RegexParser =
         |> withPostfix "+" 1 ProtoAutom.makeOneOrMore
         |> withPostfix "?" 1 ProtoAutom.makeZeroOrOne
         |> withInfix   "|" 2 ProtoAutom.makeAlternation
-        |> withTermParser regexTerm
+        |> withTermParser (fun matchExpr ->
+            let group = skipChar '(' >>. many matchExpr .>> skipChar ')'
+            let charMatch = noneOf metaChars
+            choice [
+                group     |>> ProtoAutom.concat
+                charMatch |>> ProtoAutom.makeChar])
 
     let private parser = many matchExpr .>> eof |>> ProtoAutom.completeAll Final
 
-    let parsePattern succeed fail pattern =
+    let private parsePattern succeed fail pattern =
         let result = CharParsers.run parser pattern
         match result with
         | Failure (msg, _, _) -> fail msg
