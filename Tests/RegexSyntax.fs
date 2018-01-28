@@ -85,6 +85,12 @@ let ``Alternation matches either left or right`` p t r = assertMatch p t r
 let ``Alternations can be combined`` p t r = assertMatch p t r
 
 [<Theory>]
+[<InlineData("a|bc", "a", true)>]
+[<InlineData("a|bc", "bc", true)>]
+[<InlineData("a|bc", "ac", false)>]
+let ``Alternation binds weaker than concatenation`` p t r = assertMatch p t r
+
+[<Theory>]
 [<InlineData("a*b", "b", true)>]
 [<InlineData("a*b", "ab", true)>]
 [<InlineData("a*b", "aab", true)>]
