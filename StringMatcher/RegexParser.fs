@@ -5,9 +5,6 @@ module RegexParser =
     open FParsec
     open RegexOperatorsBuilder
 
-    [<Literal>]
-    let private metaChars = "()*+?|"
-
     let private matchExpr = 
         makeOperatorPrecedenceParser ()
         |> withPostfix "*" 1 ProtoAutom.makeZeroOrMore
@@ -16,7 +13,7 @@ module RegexParser =
         |> withInfix   "|" 2 ProtoAutom.makeAlternation
         |> withTermParser (fun matchExpr ->
             let group = skipChar '(' >>. many matchExpr .>> skipChar ')'
-            let charMatch = noneOf metaChars
+            let charMatch = noneOf "*+?|()"
             choice [
                 group     |>> ProtoAutom.concat
                 charMatch |>> ProtoAutom.makeChar])
