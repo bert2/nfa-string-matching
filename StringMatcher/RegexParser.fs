@@ -7,11 +7,11 @@ module RegexParser =
 
     let private matchExpr = 
         makeOperatorPrecedenceParser ()
-        |> withPostfix "*" 1 ProtoAutom.makeZeroOrMore
-        |> withPostfix "+" 1 ProtoAutom.makeOneOrMore
-        |> withPostfix "?" 1 ProtoAutom.makeZeroOrOne
-        |> withInfix   "|" 2 ProtoAutom.makeAlternation
-        |> withTermParser (fun matchExpr ->
+        |> withPostfix "*" 2 ProtoAutom.makeZeroOrMore
+        |> withPostfix "+" 2 ProtoAutom.makeOneOrMore
+        |> withPostfix "?" 2 ProtoAutom.makeZeroOrOne
+        |> withInfix   "|" 1 ProtoAutom.makeAlternation
+        |> andWithTerms (fun matchExpr ->
             let group = skipChar '(' >>. many matchExpr .>> skipChar ')'
             let charMatch = noneOf "*+?|()"
             choice [

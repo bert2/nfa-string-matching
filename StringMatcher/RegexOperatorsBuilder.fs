@@ -6,7 +6,7 @@ module RegexOperatorsBuilder =
 
     type OPP<'a> = OperatorPrecedenceParser<'a, unit, unit>
 
-    // Ugly way of telling an operators aterStringParser to immediately succeed.
+    // My ugly way of telling an operators afterStringParser to stop parsing.
     let private stop = nextCharSatisfies (fun _ -> true) <|> eof
 
     let makeOperatorPrecedenceParser () : OPP<'a> = OperatorPrecedenceParser<_, unit, unit>()
@@ -23,6 +23,6 @@ module RegexOperatorsBuilder =
         opp.AddOperator (InfixOperator (op, stop, prec, Associativity.Left, map))
         opp
 
-    let withTermParser f (opp:OPP<'a>) = 
-        opp.TermParser <- f opp.ExpressionParser
+    let andWithTerms buildTermParser (opp:OPP<'a>) = 
+        opp.TermParser <- buildTermParser opp.ExpressionParser
         opp.ExpressionParser
