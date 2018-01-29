@@ -6,11 +6,12 @@ module RegexParser =
     open OppBuilder
 
     let private matchExpr = 
-        makeOpPrecParserWithImplicit ProtoAutom.connect
-        |> withPostfix "*"  1 ProtoAutom.makeZeroOrMore
-        |> withPostfix "+"  1 ProtoAutom.makeOneOrMore
-        |> withPostfix "?"  1 ProtoAutom.makeZeroOrOne
-        |> withInfix   "|" -1 ProtoAutom.makeAlternation
+        makeOperatorPrecedenceParser ()
+        |> withImplicitOp    2 ProtoAutom.connect
+        |> withPostfixOp "*" 3 ProtoAutom.makeZeroOrMore
+        |> withPostfixOp "+" 3 ProtoAutom.makeOneOrMore
+        |> withPostfixOp "?" 3 ProtoAutom.makeZeroOrOne
+        |> withInfixOp   "|" 1 ProtoAutom.makeAlternation
         |> andWithTerms (fun matchExpr ->
             let group = skipChar '(' >>. many matchExpr .>> skipChar ')'
             let charMatch = noneOf "*+?|()"

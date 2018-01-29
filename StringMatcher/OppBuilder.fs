@@ -10,36 +10,42 @@ module OppBuilder =
         { 
             High: OperatorPrecedenceParser<'a, unit, unit>; 
             Low: OperatorPrecedenceParser<'a, unit, unit>; 
+            ImplicitOpPrec: int;
             ImplicitOpMap: 'a -> 'a -> 'a 
         }
 
     // My ugly way of telling an operator's afterStringParser to stop parsing.
     let private stop = nextCharSatisfies (fun _ -> true) <|> eof
 
-    let private getHighOrLow prec opBuilder = 
-        if (prec > 0) then opBuilder.High else opBuilder.Low
+    let private addOp (op:Operator<_, _, _>) opBuilder = 
+        if opBuilder.ImplicitOpPrec <= 0 
+        then failwith "Define the implicit operator before any other operators."
 
-    let makeOpPrecParserWithImplicit implicitOpMap = 
+        let opp = 
+            if (op.Precedence > opBuilder.ImplicitOpPrec) 
+            then opBuilder.High 
+            else opBuilder.Low
+        opp.AddOperator op
+        opBuilder
+
+    let makeOperatorPrecedenceParser () = 
         { 
-            High = OperatorPrecedenceParser<_, unit, unit>(); 
-            Low  = OperatorPrecedenceParser<_, unit, unit>();
-            ImplicitOpMap = implicitOpMap
+            High = OperatorPrecedenceParser<_, _, _>(); 
+            Low  = OperatorPrecedenceParser<_, _, _>();
+            ImplicitOpPrec = -1
+            ImplicitOpMap = (fun x _ -> x)
         }
 
-    let withPrefix op prec map opBuilder =
-        let op = PrefixOperator (op, stop, prec + 1000, true, map)
-        (opBuilder |> getHighOrLow prec).AddOperator op
-        opBuilder
+    let withImplicitOp prec map opBuilder = 
+        if (prec <= 0) 
+        then raise <| System.ArgumentOutOfRangeException "The operator precedence must be greater than 0."
+        { opBuilder with ImplicitOpPrec = prec; ImplicitOpMap = map }
 
-    let withPostfix op prec map opBuilder =
-        let op = PostfixOperator (op, stop, prec + 1000, true, map)
-        (opBuilder |> getHighOrLow prec).AddOperator op
-        opBuilder
+    let withPrefixOp  op prec map = addOp <| PrefixOperator  (op, stop, prec, true, map)
 
-    let withInfix op prec map opBuilder =
-        let op = InfixOperator (op, stop, prec + 1000, Associativity.Left, map)
-        (opBuilder |> getHighOrLow prec).AddOperator op
-        opBuilder
+    let withPostfixOp op prec map = addOp <| PostfixOperator (op, stop, prec, true, map)
+
+    let withInfixOp   op prec map = addOp <| InfixOperator   (op, stop, prec, Associativity.Left, map)
 
     let andWithTerms buildTermParser opBuilder = 
         opBuilder.High.TermParser <- buildTermParser opBuilder.Low.ExpressionParser
