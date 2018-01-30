@@ -1,17 +1,28 @@
-# Glob Pattern Matching using Nondeterministic Finite Automata
+# Regular Expression Matching using Nondeterministic Finite Automata
 
-This is an implementation of a nondeterministic finite automaton (NFA) that matches text input against a [glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)). The implementation is based on [Ken Thompson's NFA construction from regular expressions](https://en.wikipedia.org/wiki/Thompson%27s_construction) and inspired by Russ Cox' article [Regular Expression Matching Can Be Simple And Fast](https://swtch.com/~rsc/regexp/regexp1.html).
+This is an implementation of a nondeterministic finite automaton (NFA) that matches text input against [regular expressions](https://en.wikipedia.org/wiki/Regular_expression). The implementation is based on [Ken Thompson's NFA construction](https://en.wikipedia.org/wiki/Thompson%27s_construction) and inspired by Russ Cox' article [Regular Expression Matching Can Be Simple And Fast](https://swtch.com/~rsc/regexp/regexp1.html).
 
-Given a glob pattern and an input text the implementation first parses the pattern to construct the corresponding NFA and then feeds the input text into the NFA. Whether the input matches the pattern is printed to the output and reflected with the exit code of the application.
+Given a regular expression and an input text the implementation first parses the pattern to construct the corresponding NFA and then feeds the input text into the NFA. Whether the input matches the pattern is printed to the output and reflected with the exit code of the application. Apart from the regular expressions the parser also understands the [glob syntax](https://en.wikipedia.org/wiki/Glob_(programming)).
+
+## Supported Regex Syntax
+
+| Pattern                      | Description                                                 |
+|:----------------------------:| ----------------------------------------------------------- |
+| `a`, `b`, …                  | Simple match looking for the specified character            |
+| `a\|b`                       | Alternation: match either `a` or `b`                        |
+| `a*`                         | Repetition: match `a` zero or more times                    |
+| `a*`                         | Repetition: match `a` one or more times                     |
+| `a?`                         | Option: match `a` zero or one times                         |
+| `(ab)`                       | Grouping                                                    |
 
 ## Supported Glob Syntax
 
 | Pattern                      | Description                                                 |
 |:----------------------------:| ----------------------------------------------------------- |
-| `a`, `b`, ???                  | Simple match looking for the specified character            |
+| `a`, `b`, …                  | Simple match looking for the specified character            |
 | `?`                          | Matches any character                                       |
 | `*`                          | Matches any string of characters including the empty string |
-| `[a-f]`, `[0-9]`, ???          | Matches any character within the specified range            |
+| `[a-f]`, `[0-9]`, …          | Matches any character within the specified range            |
 | `\*`, `\?`, `\\`, `\[`, `\]` | Escape character for matching meta characters literally     |
 
 ## Build
@@ -21,8 +32,21 @@ Build `nfa-string-matching.sln` using Visual Studio 2017.
 ## Usage
 
 ```
-> .\StringMatcher\bin\Release\StringMatcher.exe "my * pattern" "my glob pattern"
+> .\StringMatcher\bin\Release\StringMatcher.exe --regex "my .* pattern" --text "my regex pattern"
 Match: true
+> .\StringMatcher\bin\Release\StringMatcher.exe --glob "my * pattern" --text "my glob pattern"
+Match: true
+> .\StringMatcher\bin\Debug\StringMatcher.exe --help
+USAGE: StringMatcher.exe [--help] [--glob <string>] [--regex <string>] [--text <string>] [--printgraph] [--interactive]
+
+OPTIONS:
+
+    --glob, -g <string>   the glob pattern describing the strings to match (not combinable with '--regex')
+    --regex, -r <string>  the regex pattern describing the strings to match (not combinable with '--glob')
+    --text, -t <string>   the string to be matched
+    --printgraph, -p      prints the graph of the generated NFA as a link to https://gravizo.com/.
+    --interactive, -i     starts interactive mode
+    --help                display this list of options.
 ```
 
 ## Performance
@@ -84,14 +108,14 @@ The test run for C#'s regex class can be executed like this:
   * ~~Submatch expressions between '(' and ')'~~
   * Metacharacter '.'
   * Metacharacter escaping
-  * Alternations
+  * ~~Alternations~~
   * Character classes
   * Counted repetitions
   * ...
 * ~~Use FParsec's OperatorPrecendenceParser for regex syntax~~
 * FSCheck regular expression matcher
   * Use random string generator that has a regex as input
-* Try NFA `State` type that is a `Letter -> State list`
+* ~~Try NFA `State` type that is a `Letter -> State list`~~ *(doesn't seem to make sense)*
 * Clean up messy performance test code
   * Split into modules
   * Use parser combinator to read CSV file, just because they are fun
