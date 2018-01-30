@@ -11,7 +11,7 @@ Given a regular expression and an input text the implementation first parses the
 | `a`, `b`, …                  | Simple match looking for the specified character            |
 | `a\|b`                       | Alternation: match either `a` or `b`                        |
 | `a*`                         | Repetition: match `a` zero or more times                    |
-| `a*`                         | Repetition: match `a` one or more times                     |
+| `a+`                         | Repetition: match `a` one or more times                     |
 | `a?`                         | Option: match `a` zero or one times                         |
 | `(ab)`                       | Grouping                                                    |
 
