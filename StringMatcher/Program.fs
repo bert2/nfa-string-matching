@@ -16,15 +16,15 @@ type Args =
     | [<AltCommandLine("-i")>] 
         Interactive
     interface IArgParserTemplate with
-        member this.Usage: string = 
+        member this.Usage = 
             match this with
-            | Glob _      -> "the glob pattern describing the strings to match (not combinable with '--regex')"
             | Regex _     -> "the regex pattern describing the strings to match (not combinable with '--glob')"
+            | Glob _      -> "the glob pattern describing the strings to match (not combinable with '--regex')"
             | Text _      -> "the string to be matched"
-            | PrintGraph  -> "prints the graph of the generated NFA as a link to https://gravizo.com/."
+            | PrintGraph  -> "prints the graph of the generated NFA as a link to https://gravizo.com/"
             | Interactive -> "starts interactive mode"
 
-let argsParser = ArgumentParser.Create<Args> (errorHandler = new ProcessExiter ())
+let argsParser = ArgumentParser.Create<Args> (errorHandler = ProcessExiter ())
 
 let exit exitcode =
     if Debugger.IsAttached then Console.ReadKey(true) |> ignore
@@ -63,11 +63,11 @@ let main argv =
         argsParser.PrintUsage () |> printfn "%s"
         2
     elif not (args.Contains <@ Regex @>) && not (args.Contains <@ Glob @>) then
-        printfn "ERROR:  missing parameter '--glob' or '--regex'."
+        printfn "ERROR:  missing parameter '--regex' or '--glob'."
         argsParser.PrintUsage () |> printfn "%s"
         2
     elif args.Contains <@ Regex @> && args.Contains <@ Glob @> then
-        printfn "ERROR:  parameter '--glob' cannot be combined with '--regex'."
+        printfn "ERROR:  parameter '--regex' cannot be combined with '--glob'."
         argsParser.PrintUsage () |> printfn "%s"
         2
     else
