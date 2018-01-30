@@ -12,6 +12,7 @@ type State =
     | Final
 
 module Autom =
+    open System.Collections.Generic
 
     let rec private step letter state =
         match state, letter with
@@ -23,9 +24,18 @@ module Autom =
             when min <= c && c <= max              -> [next]
         | _                                        -> []
 
-    let rec private expandEpsilons = function
-        | Split (left, right) -> expandEpsilons left @ expandEpsilons right
-        | state -> [state]
+    let private expandEpsilons state =
+        let visited = HashSet<_> ()
+        let rec expandEpsilons' state = 
+            if visited.Contains state then 
+                [] 
+            else 
+                match state with
+                | Split (left, right) -> 
+                    visited.Add state |> ignore
+                    expandEpsilons' left @ expandEpsilons' right
+                | state -> [state]
+        expandEpsilons' state
     
     let private consume currents letter =
        currents 
