@@ -97,7 +97,12 @@ let ``Alternation binds weaker than concatenation`` p t r = assertMatch p t r
 [<InlineData("a|b*", "bb", true)>]
 [<InlineData("a|b*", "aa", false)>]
 [<InlineData("a|b*", "ab", false)>]
-let ``Alternation binds weaker than Kleene star`` p t r = assertMatch p t r
+[<InlineData("a|b+", "a", true)>]
+[<InlineData("a|b+", "b", true)>]
+[<InlineData("a|b+", "bb", true)>]
+[<InlineData("a|b+", "aa", false)>]
+[<InlineData("a|b+", "ab", false)>]
+let ``Alternation binds weaker than repetitions`` p t r = assertMatch p t r
 
 [<Theory>]
 [<InlineData("a*b", "b", true)>]
