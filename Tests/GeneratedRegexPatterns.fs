@@ -35,12 +35,12 @@ let rec genRegex () =
 
 let rec printRegex = function
     | Char c        -> string c
-    | Concat (l, r) -> sprintf "%s%s" (printRegex l) (printRegex r)
-    | Alt (l, r)    -> sprintf "%s|%s" (printRegex l) (printRegex r)
+    | Concat (l, r) -> sprintf "(%s)(%s)" (printRegex l) (printRegex r)
+    | Alt (l, r)    -> sprintf "(%s)|(%s)" (printRegex l) (printRegex r)
     | Group x       -> sprintf "(%s)" (printRegex x)
-    | Star x        -> sprintf "%s*"  (printRegex x)
-    | Plus x        -> sprintf "%s+"  (printRegex x)
-    | Opt x         -> sprintf "%s?"  (printRegex x)
+    | Star x        -> sprintf "(%s)*"  (printRegex x)
+    | Plus x        -> sprintf "(%s)+"  (printRegex x)
+    | Opt x         -> sprintf "(%s)?"  (printRegex x)
 
 let rec genText = function
     | Char c        -> Gen.constant <| string c
@@ -58,10 +58,12 @@ let matchingTextAndPatternCombo = gen {
     return (pattern, text, regex)
 }
 
-[<Fact(Skip = "Fix stackoverflow first")>]
+[<Fact>]
 let ``test`` () =
-    Check.VerboseThrowOnFailure (Prop.forAll 
+    Check.One ({Config.VerboseThrowOnFailure with EndSize = 30}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo)
         (fun (pattern, text, _) -> 
+            //System.IO.File.AppendAllText ("regextest.log", sprintf "pattern: %s\ntext:    %s\n%A\n\n" pattern text graph)
+            System.IO.File.AppendAllText ("regextest.log", sprintf "pattern: %s\ntext:    %s\n\n\n" pattern text)
             let a = RegexParser.toAutomaton' pattern
             Autom.run a text))
