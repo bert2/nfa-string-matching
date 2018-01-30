@@ -41,9 +41,9 @@ module OppBuilder =
         then raise <| System.ArgumentOutOfRangeException "The operator precedence must be greater than 0."
         { opBuilder with ImplicitOpPrec = prec; ImplicitOpMap = map }
 
-    let withPrefixOp  op prec map = addOp <| PrefixOperator  (op, stop, prec, true, map)
+    let withPrefixOp  op prec map = addOp <| PrefixOperator  (op, stop, prec, false, map)
 
-    let withPostfixOp op prec map = addOp <| PostfixOperator (op, stop, prec, true, map)
+    let withPostfixOp op prec map = addOp <| PostfixOperator (op, stop, prec, false, map)
 
     let withInfixOp   op prec map = addOp <| InfixOperator   (op, stop, prec, Associativity.Left, map)
 
