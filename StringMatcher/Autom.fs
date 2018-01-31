@@ -23,26 +23,26 @@ module Autom =
             when min <= c && c <= max              -> Some next
         | _                                        -> None
 
-    let private expandEpsilons state =
+    let private skipEpsilons state =
         let visited = HashSet<_> ()
-        let rec expandEpsilons' state = 
+        let rec skipEpsilons' state = 
             if visited.Contains state then 
                 [] 
             else 
                 match state with
                 | Split (left, right) -> 
                     visited.Add state |> ignore
-                    expandEpsilons' left @ expandEpsilons' right
+                    skipEpsilons' left @ skipEpsilons' right
                 | state -> [state]
-        expandEpsilons' state
+        skipEpsilons' state
     
     let private consume currents letter =
        currents 
        |> List.choose (moveNext letter) 
-       |> List.collect expandEpsilons
+       |> List.collect skipEpsilons
        |> List.distinct
 
     let run start = 
         Seq.map Letter 
-        >> Seq.fold consume (expandEpsilons start)
+        >> Seq.fold consume (skipEpsilons start)
         >> List.contains Final
