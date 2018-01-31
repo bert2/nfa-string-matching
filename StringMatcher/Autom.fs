@@ -16,12 +16,12 @@ module Autom =
 
     let rec private moveNext letter state =
         match state, letter with
-        | State (Any, next)             , _        -> [next]
+        | State (Any, next)             , _        -> Some next
         | State (Letter c', next)       , Letter c          
-            when c' = c                            -> [next]
+            when c' = c                            -> Some next
         | State (Range (min, max), next), Letter c 
-            when min <= c && c <= max              -> [next]
-        | _                                        -> []
+            when min <= c && c <= max              -> Some next
+        | _                                        -> None
 
     let private expandEpsilons state =
         let visited = HashSet<_> ()
@@ -38,7 +38,7 @@ module Autom =
     
     let private consume currents letter =
        currents 
-       |> List.collect (moveNext letter) 
+       |> List.choose (moveNext letter) 
        |> List.collect expandEpsilons
        |> List.distinct
 
