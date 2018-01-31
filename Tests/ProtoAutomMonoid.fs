@@ -3,32 +3,21 @@
 open Xunit
 open FsCheck
 open StringMatcher
-open System.Collections.Generic
 open ProtoAutom
+open Util
 
-let areEqualStates state state' =
-    let visited = HashSet<_> ()
-
-    let rec areEqualStates' state state' =
-        if visited.Contains (state, state') then 
-            true
-        else
-            match state, state' with
-            | Final, Final -> true
-            | State (l, next), State (l', next') when l = l' -> 
-                visited.Add (state, state') |> ignore
-                areEqualStates' next next'
-            | Split (l, r), Split (l', r') -> 
-                visited.Add (state, state') |> ignore
-                areEqualStates' l l' && areEqualStates' r r'
-            | _ -> false
-
-    areEqualStates' state state'
+let areEqualStates = visitEach true (fun visitNext -> function
+    | Final, Final -> true
+    | State (l, next), State (l', next') when l = l' -> 
+        visitNext (next, next')
+    | Split (l, r), Split (l', r') -> 
+        visitNext (l, l') && visitNext (r, r')
+    | _ -> false)
 
 let areEqual proto proto' =
     let a = complete proto Final
     let a' = complete proto' Final
-    areEqualStates a a'
+    areEqualStates (a, a')
 
 let rec protoAutom = 
     let leafProtos = [

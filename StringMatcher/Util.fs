@@ -13,3 +13,15 @@ let memoize f =
             let y = f x
             cache.Add (x, y)
             y
+
+let visitEach defaultValue f x =
+    let visited = HashSet<_> ()
+
+    let rec visit' x = 
+        if visited.Contains x then 
+            defaultValue 
+        else 
+            visited.Add x |> ignore
+            f (visit') x
+
+    visit' x
