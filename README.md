@@ -9,6 +9,7 @@ Given a regular expression and an input text the implementation first parses the
 | Pattern                      | Description                                                 |
 |:----------------------------:| ----------------------------------------------------------- |
 | `a`, `b`, …                  | Simple match looking for the specified character            |
+| `.`                          | Wildcard: match any character                               |
 | `a\|b`                       | Alternation: match either `a` or `b`                        |
 | `a*`                         | Repetition: match `a` zero or more times                    |
 | `a+`                         | Repetition: match `a` one or more times                     |
@@ -106,7 +107,7 @@ The test run for C#'s regex class can be executed like this:
   * ~~Kleene plus~~
   * ~~Optional match~~
   * ~~Submatch expressions between '(' and ')'~~
-  * Metacharacter '.'
+  * ~~Metacharacter '.'~~
   * Metacharacter escaping
   * ~~Alternations~~
   * Character classes
