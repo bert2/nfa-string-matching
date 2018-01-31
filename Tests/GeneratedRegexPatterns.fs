@@ -66,7 +66,7 @@ let matchingTextAndPatternCombo = gen {
 
 [<Fact>]
 let ``test`` () =
-    Check.One ({Config.VerboseThrowOnFailure with EndSize = 30}, Prop.forAll 
+    Check.One ({Config.VerboseThrowOnFailure with EndSize = 20}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo)
         (fun (pattern, text, graph) -> 
             //System.IO.File.AppendAllText ("regextest.log", sprintf "pattern: %s\ntext:    %s\n%A\n\n" pattern text graph)
