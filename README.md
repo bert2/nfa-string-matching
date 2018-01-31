@@ -70,6 +70,10 @@ Commit 91ed910 introduced another refactoring that also fixed a major bug. Due t
 
 A tail-recursive version of `expandEpsilons` was implemented in commit b4023bd and yielded minor performance improvements. However, making `step` tail-recursive as well and generalizing the concept of tail-recursivying a doubly recursive function (535b1f7) actually decreased performance a little bit. Hence the change was reverted.
 
+I don't remember what yielded the performane improvments when updating the performance test results at commit ae5b53c.
+
+Between commits ae5b53c and 7978f37 I noticed stackoverflows during expansion of circular epsilon transitions. The fix for this had a negative impact on the automaton's runtime behavior.
+
 ### Reproducing the Performance Results
 
 Each test run of the implementation was executed and recorded the following way:
