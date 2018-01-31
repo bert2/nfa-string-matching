@@ -14,7 +14,7 @@ type State =
 module Autom =
     open System.Collections.Generic
 
-    let rec private step letter state =
+    let rec private moveNext letter state =
         match state, letter with
         | State (Any, next)             , _        -> [next]
         | State (Letter c', next)       , Letter c          
@@ -38,7 +38,7 @@ module Autom =
     
     let private consume currents letter =
        currents 
-       |> List.collect (step letter) 
+       |> List.collect (moveNext letter) 
        |> List.collect expandEpsilons
        |> List.distinct
 
