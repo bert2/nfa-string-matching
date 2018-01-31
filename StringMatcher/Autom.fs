@@ -16,7 +16,6 @@ module Autom =
 
     let rec private step letter state =
         match state, letter with
-        | Split (left, right)           , l        -> step l left @ step l right
         | State (Any, next)             , _        -> [next]
         | State (Letter c', next)       , Letter c          
             when c' = c                            -> [next]
