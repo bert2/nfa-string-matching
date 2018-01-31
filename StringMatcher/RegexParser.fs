@@ -14,9 +14,11 @@ module RegexParser =
         |> withInfixOp   "|" 1 ProtoAutom.makeAlternation
         |> andWithTerms (fun matchExpr ->
             let group = skipChar '(' >>. many matchExpr .>> skipChar ')'
+            let wildcard = skipChar '.'
             let charMatch = noneOf "*+?|()"
             choice [
                 group     |>> ProtoAutom.concat
+                wildcard  |>> ProtoAutom.makeAnyChar
                 charMatch |>> ProtoAutom.makeChar])
 
     let private parser = many matchExpr .>> eof |>> ProtoAutom.completeAll Final
