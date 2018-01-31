@@ -62,7 +62,7 @@ let main argv =
     if args.IsUsageRequested then 
         argsParser.PrintUsage () |> printfn "%s"
         2
-    elif not (args.Contains <@ Regex @>) && not (args.Contains <@ Glob @>) then
+    elif not (args.Contains <@ Regex @>) && not (args.Contains <@ Glob @>) && not (args.Contains <@ Interactive @>) then
         printfn "ERROR:  missing parameter '--regex' or '--glob'."
         argsParser.PrintUsage () |> printfn "%s"
         2
