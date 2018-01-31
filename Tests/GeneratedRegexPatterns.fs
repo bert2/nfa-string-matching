@@ -6,6 +6,7 @@ open StringMatcher
 
 type Regex = 
     | Char   of char
+    | Any
     | Concat of Regex * Regex
     | Alt    of Regex * Regex
     | Group  of Regex
@@ -13,9 +14,12 @@ type Regex =
     | Plus   of Regex
     | Opt    of Regex
 
+let genChar = Gen.elements ['a'..'f']
+
 let rec genRegex () = 
     let leaves = [
-        Gen.map Char <| Gen.elements ['a'..'f']]
+        Gen.map Char <| genChar
+        Gen.constant Any]
 
     let rec genRegex' size =
         if size <= 0 then
@@ -35,6 +39,7 @@ let rec genRegex () =
 
 let rec printRegex = function
     | Char c        -> string c
+    | Any           -> "."
     | Concat (l, r) -> sprintf "(%s)(%s)" (printRegex l) (printRegex r)
     | Alt (l, r)    -> sprintf "(%s)|(%s)" (printRegex l) (printRegex r)
     | Group x       -> sprintf "(%s)" (printRegex x)
@@ -44,6 +49,7 @@ let rec printRegex = function
 
 let rec genText = function
     | Char c        -> Gen.constant <| string c
+    | Any           -> Gen.map string <| genChar
     | Concat (l, r) -> Gen.map2 (+) (genText l) (genText r)
     | Alt (l, r)    -> Gen.oneof [genText l; genText r]
     | Group r       -> genText r
@@ -62,7 +68,7 @@ let matchingTextAndPatternCombo = gen {
 let ``test`` () =
     Check.One ({Config.VerboseThrowOnFailure with EndSize = 30}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo)
-        (fun (pattern, text, _) -> 
+        (fun (pattern, text, graph) -> 
             //System.IO.File.AppendAllText ("regextest.log", sprintf "pattern: %s\ntext:    %s\n%A\n\n" pattern text graph)
             System.IO.File.AppendAllText ("regextest.log", sprintf "pattern: %s\ntext:    %s\n\n\n" pattern text)
             let a = RegexParser.toAutomaton' pattern

@@ -15,6 +15,12 @@ let private assertMatch pattern text isMatch =
 let ``matches literal characters`` p t r = assertMatch p t r
 
 [<Theory>]
+[<InlineData(".", "a", true)>]
+[<InlineData(".", "b", true)>]
+[<InlineData(".", "ab", false)>]
+let ``dot matches any single character`` p t r = assertMatch p t r
+
+[<Theory>]
 [<InlineData("(a)", "a", true)>]
 [<InlineData("(a)", "b", false)>]
 [<InlineData("(ab)", "ab", true)>]
