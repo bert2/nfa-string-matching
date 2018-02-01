@@ -1,19 +1,5 @@
 ﻿namespace StringMatcher
 
-type Letter = Any | Letter of char | Range of char * char 
-
-[<CustomEquality; CustomComparison>]
-type State = 
-    | State of Letter * State
-    | Split of State * State
-    | Final
-    override x.Equals y = System.Object.ReferenceEquals (x, y)
-    interface System.IComparable with
-        member x.CompareTo yobj =
-            match yobj with
-            | :? State as y -> compare (x.GetHashCode ()) (y.GetHashCode ())
-            | _ -> invalidArg "yobj" "cannot compare value of different types"
-
 module Autom =
 
     let rec private moveNext letter state =
@@ -25,24 +11,33 @@ module Autom =
             when min <= c && c <= max              -> Some next
         | _                                        -> None
     
-    let rec private skipEpsilons visited included toInclude =
-        match toInclude with
-        | [] -> included
-        | state::toInclude' ->
-            if visited |> Set.contains state then
-                skipEpsilons visited included toInclude'
-            else
-                match state with
-                | Split (l, r) -> skipEpsilons (visited |> Set.add state) included (l::r::toInclude')
-                | _ -> skipEpsilons visited (included |> Set.add state) toInclude'
+    let private expandAll =
+        let rec expandAll' visited expanded toExpand = 
+            match toExpand with
+            | [] -> expanded
+            | state::toExpand' ->
+                if visited |> Set.contains state then
+                    // Breaks transition loops.
+                    expandAll' visited expanded toExpand'
+                else
+                    match state with
+                    | Split (l, r) -> 
+                        let visited' = visited |> Set.add state
+                        expandAll' visited' expanded (l::r::toExpand')
+                    | _ -> 
+                        let expanded' = expanded |> Set.add state
+                        expandAll' visited expanded' toExpand'
+        expandAll' Set.empty Set.empty
+
+    let private expand = List.singleton >> expandAll
 
     let private consume currents letter =
        currents 
-       |> Set.toList
-       |> List.choose (moveNext letter) 
-       |> skipEpsilons Set.empty Set.empty
+       |> Seq.choose (moveNext letter) 
+       |> Seq.toList
+       |> expandAll
 
     let run start = 
         Seq.map Letter 
-        >> Seq.fold consume (skipEpsilons Set.empty Set.empty (List.singleton start))
+        >> Seq.fold consume (expand start)
         >> Set.contains Final

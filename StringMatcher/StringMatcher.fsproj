@@ -57,6 +57,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Util.fs" />
+    <Compile Include="State.fs" />
     <Compile Include="Autom.fs" />
     <Compile Include="ProtoAutom.fs" />
     <Compile Include="AutomPrinter.fs" />
