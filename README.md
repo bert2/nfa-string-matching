@@ -70,9 +70,11 @@ Commit 91ed910 introduced another refactoring that also fixed a major bug. Due t
 
 A tail-recursive version of `expandEpsilons` was implemented in commit b4023bd and yielded minor performance improvements. However, making `step` tail-recursive as well and generalizing the concept of tail-recursivying a doubly recursive function (535b1f7) actually decreased performance a little bit. Hence the change was reverted.
 
-I don't remember what yielded the performane improvments when updating the performance test results at commit ae5b53c.
+I don't remember what yielded the performane improvements when updating the performance test results at commit ae5b53c.
 
 Between commits ae5b53c and 7978f37 I noticed stackoverflows during expansion of circular epsilon transitions. The fix for this had a negative impact on the automaton's runtime behavior.
+
+Execution of automata got a solid boost around commit bc84735 by getting rid of list concatenations and introducing sets to avoid `List.distinct`.
 
 ### Reproducing the Performance Results
 
@@ -120,6 +122,8 @@ The test run for C#'s regex class can be executed like this:
 * ~~Use FParsec's OperatorPrecendenceParser for regex syntax~~
 * FSCheck regular expression matcher
   * Use random string generator that has a regex as input
+* Discard some of the collected performance test results
+* Understand why improved epsilon expansion is massively slower when doing no check for transition loops (it used to be the other way around before and might indicate a bug?)
 * ~~Try NFA `State` type that is a `Letter -> State list`~~ *(doesn't seem to make sense)*
 * Clean up messy performance test code
   * Split into modules
