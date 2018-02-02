@@ -121,7 +121,7 @@ The test run for C#'s regex class can be executed like this:
   * ...
 * ~~Use FParsec's OperatorPrecendenceParser for regex syntax~~
 * Don't misuse `GetHashCode` as "unique" value for `CompareTo`
-* Try merging `expandAll` and `moveNext` into one function
+* ~~Try merging `expandAll` and `moveNext` into one function~~ *yuck*
 * Try dotnet core
 * FSCheck regular expression matcher
   * Use random string generator that has a regex as input
