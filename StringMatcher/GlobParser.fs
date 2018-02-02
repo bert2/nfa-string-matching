@@ -8,8 +8,6 @@ module GlobParser =
 
     let private anyStringWildcard = skipChar '*'
 
-    let x = anyStringWildcard
-
     let private escapableChar = 
         anyOf @"?*[]\" 
         <?> @"'?', '*', '[', ']', or '\'"

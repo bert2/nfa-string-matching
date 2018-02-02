@@ -2,7 +2,7 @@
 
 module Autom =
 
-    let rec private moveNext letter state =
+    let private moveNext letter state =
         match state, letter with
         | State (Any, next)             , _        -> Some next
         | State (Letter c', next)       , Letter c          
