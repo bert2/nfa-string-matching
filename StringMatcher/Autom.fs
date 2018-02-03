@@ -11,6 +11,8 @@ module Autom =
             when min <= c && c <= max              -> Some next
         | _                                        -> None
     
+    // Given a list of states expandAll adds all states to the list that are
+    // reachable via transitions that don't consume intput.
     let private expandAll =
         let rec expandAll' visited expanded toExpand = 
             match toExpand with
