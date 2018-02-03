@@ -56,7 +56,7 @@ In order to track the impact of optimization attempts a performance test project
 
 The test matches the input text "a<sup>n</sup>" against the glob pattern "\*<sup>n</sup>a<sup>n</sup>" with *n* ranging from *1* to *100*. For instance, for *n = 2* the input "aa" is matched with the pattern "\*\*aa". The test provokes the worst case scenario where the implementation has to try to match the input with all "\*" wildcards, before it can match it successfully against the suffixed "a" characters.
 
-![Graph of performance test results](/PerformanceTest/perftest-results.png)
+![Graph of performance test results](./PerformanceTest/perftest-results.png)
 
 The figure above shows the most recent performance graph. The pattern length *n* is plotted against the X axis, the runtime in milliseconds against the Y axis. The Y axis has been log-scaled in order to capture the wide range of measured runtimes more accurately. The legend shows the commit hash for each performance test ordered from oldest (top) to newest (bottom). Because the utilized plot library ([FSharp.Charting](https://fslab.org/FSharp.Charting/)) throws errors when rendering `0` values on a log-scaled axis, the measurements have been clamped to always be greater or equal *1 ms*.
 
