@@ -54,27 +54,23 @@ OPTIONS:
 
 In order to track the impact of optimization attempts a performance test project has been added to the solution. It repeatedly executes the implementation using a glob pattern and input text of increasing size. The results are labeled with the current git commit hash, stored in a CSV file and rendered to a graph.
 
-The test matches the input text "a<sup>n</sup>" against the glob pattern "\*<sup>n</sup>a<sup>n</sup>" with *n* ranging from *1* to *100*. For instance, for *n = 2* the input "aa" is matched with the pattern "\*\*aa". The test provokes the worst case scenario where the implementation has to try to match the input with all "\*" wildcards, before it can match it successfully against the suffixed "a" characters.
+The test matches the input text "a<sup>n</sup>" against the regular expression "a?<sup>n</sup>a<sup>n</sup>" with *n* ranging from *1* to *100*. For instance, for *n = 2* the input "aa" is matched with the pattern "a?a?aa". The test provokes the worst case scenario where the implementation has to try to match the input with all occurences of "a?", before it can match it successfully against the suffixed "a" characters.
 
 ![Graph of performance test results](./PerformanceTest/perftest-results.png)
 
 The figure above shows the most recent performance graph. The pattern length *n* is plotted against the X axis, the runtime in milliseconds against the Y axis. The Y axis has been log-scaled in order to capture the wide range of measured runtimes more accurately. The legend shows the commit hash for each performance test ordered from oldest (top) to newest (bottom). Because the utilized plot library ([FSharp.Charting](https://fslab.org/FSharp.Charting/)) throws errors when rendering *0* values on a log-scaled axis, the measurements have been clamped to always be greater or equal *1 ms*.
 
-For comparison the results when matching the input text against the analogous regular expression ".\*<sup>n</sup>a<sup>n</sup>" with [C#'s regex implementation](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396) have been plotted as well (test cut short at *n = 18*, because there are only so many milliseconds left until the sun expands and swallows our star system).
+For comparison the results when matching the same input text with [C#'s regex implementation](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396) have been plotted as well (test cut short at *n = 32*, because there are only so many milliseconds left until the sun expands and swallows our star system).
 
 ### A Note on the Performance Results
 
-Up until commit 7333567 an NFA implementation was used that lend itself to easy concatination of automata, but required more cycles to execute them. Later commits used a refactored version with opposite properties, i.e. faster execution at the expense of a more complex construction.
+Up until commit 73335672a0c60fd970624779cc2820381355c10a an NFA implementation was used that lend itself to easy concatination of automata, but required more cycles to execute them. Later commits used a refactored version with opposite properties, i.e. faster execution at the expense of a more complex construction.
 
-Commit 91ed910 introduced another refactoring that also fixed a major bug. Due to this bug incorrect automata were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
+Commit 91ed9108bc3ec0a608b69881af7a7aeb68099b8f introduced another refactoring that also fixed a major bug. Due to this bug incorrect automata were generated that allowed for illegal shortcuts during execution and resulted in false runtimes.
 
-A tail-recursive version of `expandEpsilons` was implemented in commit b4023bd and yielded minor performance improvements. However, making `step` tail-recursive as well and generalizing the concept of tail-recursivying a doubly recursive function (535b1f7) actually decreased performance a little bit. Hence the change was reverted.
+Execution of automata got a solid boost around commit bc8473528193061a17725de9d9bbd71eb4bce8f8 by getting rid of list concatenations and introducing sets to avoid `List.distinct`.
 
-I don't remember what yielded the performane improvements when updating the performance test results at commit ae5b53c.
-
-Between commits ae5b53c and 7978f37 I noticed stackoverflows during expansion of circular epsilon transitions. The fix for this had a negative impact on the automaton's runtime behavior.
-
-Execution of automata got a solid boost around commit bc84735 by getting rid of list concatenations and introducing sets to avoid `List.distinct`.
+The improved runtime around commit fbce41e50032893beee3775de3ca80306a5d73c5 is due to changing the performance test itself. The tests are now based on regular expressions rather than glob patterns. The new expressions yield smaller automatons.
 
 ### Reproducing the Performance Results
 
