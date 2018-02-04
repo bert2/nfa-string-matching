@@ -23,9 +23,9 @@ let toFloats = List.map float >> List.toArray
 
 let delay f x = fun () -> f x
 
-let makeTestData wildcard letter length =
+let makeTestData repeatOp letter length =
     let text = String.replicate length letter
-    let pattern = (String.replicate length wildcard) + text
+    let pattern = (String.replicate length (letter + repeatOp)) + text
     pattern, text
 
 let measure f = 
@@ -35,13 +35,13 @@ let measure f =
 
 let measureNfaTimeForPatternLength n = 
     printf "\b\b\b\b\b\b\b\b\b%03i (" n
-    let pattern, text = makeTestData "*" "a" n
-    let automaton = GlobParser.toAutomaton' pattern
+    let pattern, text = makeTestData "?" "a" n
+    let automaton = RegexParser.toAutomaton' pattern
     measure (fun () -> Autom.run automaton text)
 
 let measureRegexTimeForPatternLength n = 
     printf "\b\b\b\b\b\b\b\b\b%03i (" n
-    let pattern, text = makeTestData ".*" "a" n
+    let pattern, text = makeTestData "?" "a" n
     let regex = Regex pattern
     measure (fun () -> regex.IsMatch text)
 
@@ -193,7 +193,7 @@ let main argv =
     match args.Length with
     | 1 when args.[0] = "--rendertofile"    -> render (Chart.Save resultChart)
     | 1 when args.[0] = "--rendertoscreen"  -> render (Chart.Show)
-    | 1 when args.[0] = "--testcsharpregex" -> doPerformanceTest measureRegexTimeForPatternLength 1 18 1 (fun () -> "C# Regex class")
+    | 1 when args.[0] = "--testcsharpregex" -> doPerformanceTest measureRegexTimeForPatternLength 1 32 1 (fun () -> "C# Regex class")
     | 3 -> doPerformanceTest measureNfaTimeForPatternLength (int args.[0]) (int args.[1]) (int args.[2]) getCommitHash
     | _ -> 
         printfn "Usage:   PerformanceTest.exe <min pattern length> <max pattern length> <number of repetitions>"
