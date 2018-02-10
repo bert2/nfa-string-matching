@@ -119,10 +119,9 @@ The test run for C#'s regex class can be executed like this:
 * Don't misuse `GetHashCode` as "unique" value for `CompareTo`
 * ~~Try merging `expandAll` and `moveNext` into one function~~ *yuck*
 * Try dotnet core
-* FSCheck regular expression matcher
-  * Use random string generator that has a regex as input
-* Discard some of the collected performance test results
-* Understand why improved epsilon expansion is massively slower when doing no check for transition loops (it used to be the other way around before and might indicate a bug?)
+* ~~FSCheck regular expression matcher~~
+* Performance test randomized regex patterns
+* ~~Discard some of the collected performance test results~~
 * ~~Try NFA `State` type that is a `Letter -> State list`~~ *(doesn't seem to make sense)*
 * Clean up messy performance test code
   * Split into modules
