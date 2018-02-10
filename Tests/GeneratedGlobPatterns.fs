@@ -20,8 +20,8 @@ let matchingTextAndPatternCombo = gen {
 }
 
 [<Fact>]
-let ``matching pattern and text are accepted`` () = 
-    Check.One ({Config.VerboseThrowOnFailure with MaxTest = 3000}, Prop.forAll 
+let ``matching glob and text are accepted`` () = 
+    Check.One ({Config.VerboseThrowOnFailure with MaxTest = 2000}, Prop.forAll 
         (Arb.fromGen matchingTextAndPatternCombo) 
         (fun {Pattern = pattern; Text = text} -> 
             let a = GlobParser.toAutomaton' pattern
