@@ -16,7 +16,7 @@ type Regex =
 
 let genChar = Gen.elements ['a'..'f']
 
-let rec genRegex () = 
+let rec genRegex = 
     let rec genRegex' size =
         if size <= 0 then
             Gen.oneof [
@@ -32,7 +32,6 @@ let rec genRegex () =
                 Gen.map Star   subRegex
                 Gen.map Plus   subRegex
                 Gen.map Opt    subRegex]
-
     Gen.sized genRegex'
 
 let rec printRegex = function
@@ -56,7 +55,7 @@ let rec genText = function
     | Opt r         -> genText r |> Gen.optionOf |> Gen.map (function | Some s -> s | None -> "")
 
 let matchingTextAndPatternCombo = gen {
-    let! regex = genRegex ()
+    let! regex = genRegex
     let pattern = printRegex regex
     let! text = genText regex
     return (pattern, text)
